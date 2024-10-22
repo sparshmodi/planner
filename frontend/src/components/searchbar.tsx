@@ -1,5 +1,6 @@
 import { Course } from '@/types'
-import { Autocomplete, FormControl, InputLabel, ListItemText, TextField } from '@mui/material'
+import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search'
 import React, { useState } from 'react'
 
 interface SearchBarProps {
@@ -7,7 +8,7 @@ interface SearchBarProps {
 }
 
 const getCourseOptionLabel = (course: Course) => {
-    return `${course.subjectCode} ${course.catalogNumber}`
+    return `${course.subjectCode} ${course.catalogNumber} ${course.title}`
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
@@ -32,10 +33,11 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
         setSelectedValue(newSelectedValue)
     }
   
-    return (<FormControl variant="outlined">
+    return (<FormControl variant="outlined" className='bg-white rounded-md'>
         <InputLabel
-            style={{ display: inputValue ? 'none' : 'flex' }}>
-            Search for courses
+          className={`ml-6 ${inputValue ? 'hidden' : 'flex'}`}
+        >
+          Search for courses
         </InputLabel>
       <Autocomplete
         options={filteredOptions}
@@ -44,20 +46,31 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
         onChange={handleChange}
         inputValue={inputValue}
         onInputChange={handleInputChange}
-        renderOption={(props, option) => (
-            <li {...props} className="flex items-center p-2 hover:bg-gray-100 cursor-pointer">
+        renderOption={(props, course) => (
+            <li {...props} className="flex items-center p-2 hover:bg-gray-200 cursor-pointer">
               <ListItemText
                 primary={
                   <>
-                    <span className="text-blue-500 mr-1">{option.subjectCode}</span>
-                    <span className="font-bold text-black">{option.catalogNumber}</span>
+                    <span className="font-bold">{course.subjectCode} {course.catalogNumber}</span>
+                    <span className='mx-1 border-b'>—</span>
+                    <span className="text-gray-500">{course.title}</span>
                   </>
                 }
               />
             </li>
           )}
         renderInput={(params) => (
-          <TextField {...params} variant="filled"/>
+          <TextField 
+            {...params}
+            variant="outlined"
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: 
+              <InputAdornment position='start' className='mr-0'>
+                <SearchIcon />
+              </InputAdornment>
+            }}
+          />
         )}
         open={inputValue !== null && filteredOptions.length > 0}
         noOptionsText="No options"

@@ -2,6 +2,7 @@ export interface Course {
     courseId: string
     subjectCode: string
     catalogNumber: string
+    title: string
 }
 export interface UwaterlooClassSchedule {
     classSection: number
