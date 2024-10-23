@@ -9,6 +9,7 @@ import LoadingState from "@/components/loading"
 import BaseLayout from "@/components/baseLayout"
 import CoursesProvider from "./plan/context"
 import getDarkTheme from "./theme"
+import { GoogleAnalytics } from '@next/third-parties/google' 
 
 const darkTheme = createTheme(getDarkTheme())
 
@@ -22,6 +23,7 @@ export default function App({
                 <title>UW Plan</title>
                 <link rel="icon" href="/icon.png"  />
             </Head>
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''}/>
             <SessionProvider session={session}>
                 <ThemeProvider theme={darkTheme}>
                     <CssBaseline />
