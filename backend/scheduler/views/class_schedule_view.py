@@ -20,7 +20,9 @@ class ClassScheduleView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        class_combinations_by_course: Dict[str, CourseClassSchedules] = CourseClassSchedules.objects.in_bulk(course_ids)
+        class_combinations_by_course: Dict[str, CourseClassSchedules] = (
+            CourseClassSchedules.objects.in_bulk(course_ids)
+        )
 
         if len(class_combinations_by_course) != len(course_ids):
             return Response(
@@ -44,14 +46,16 @@ class ClassScheduleView(APIView):
                 ]
                 for course_id, classes in schedule.items()
             }
-            for schedule in self.generate_valid_class_schedules(class_combinations_by_course, class_data_by_course)
+            for schedule in self.generate_valid_class_schedules(
+                class_combinations_by_course, class_data_by_course
+            )
         ]
 
         return Response(
-            ClassSchedulesSerializer(schedules, many=True).data, status=status.HTTP_200_OK
+            ClassSchedulesSerializer(schedules, many=True).data,
+            status=status.HTTP_200_OK,
         )
 
-        
     # Generates class schedules for a given courses
     def generate_valid_class_schedules(
         self,
@@ -62,7 +66,7 @@ class ClassScheduleView(APIView):
         course_ids = list(class_combinations_by_course.keys())
 
         # Uses dynamic programming to generate all possible schedules
-        # 
+        #
         # Base case
         # [{course_id: [section_id ...] ... } ... ]
         dp: List[Dict[str, List[int]]] = [

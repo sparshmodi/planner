@@ -13,7 +13,7 @@ def run_initialization_commands(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scheduler', '0001_initial'),
+        ('scheduler', '0002_remove_rawcourse_course_component_code_and_more'),
     ]
 
     operations = [

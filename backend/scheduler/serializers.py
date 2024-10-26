@@ -6,7 +6,14 @@ from .models import RawCourse, RawClass, RawClassSchedule
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = RawCourse
-        fields = ["course_id", "subject_code", "catalog_number"]
+        fields = [
+            "course_id",
+            "subject_code",
+            "catalog_number",
+            "title",
+            "description",
+            "requirements_description",
+        ]
 
 
 class ClassSchedulesSerializer(serializers.Serializer):

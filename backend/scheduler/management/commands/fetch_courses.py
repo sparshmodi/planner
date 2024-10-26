@@ -1,10 +1,19 @@
 # fetch_courses.py
 
 import requests
+import logging
 from datetime import datetime, time
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from scheduler.models import RawCourse, RawClass, RawClassSchedule, CourseClassSchedules, CoursesOverlap
+from scheduler.models import (
+    RawCourse,
+    RawClass,
+    RawClassSchedule,
+    CourseClassSchedules,
+    CoursesOverlap,
+)
+
+logger = logging.getLogger("planner")
 
 
 class Command(BaseCommand):
@@ -12,7 +21,7 @@ class Command(BaseCommand):
 
     def _convert_to_time(self, date: str) -> time:
         return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S").time()
-    
+
     def _convert_to_datetime(self, date: str) -> datetime:
         return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
 
@@ -21,12 +30,13 @@ class Command(BaseCommand):
         uw_term_code = settings.UWATERLOO_TERM_CODE
         headers = {"x-api-key": settings.UWATERLOO_API_KEY}
 
-        # Fetch courses
-        courses_ep = f"{uw_api_url}/Courses/{uw_term_code}"
+        courses_ep = f"{uw_api_url}/Courses/{uw_term_code}/CS"
         response = requests.get(courses_ep, headers=headers)
 
         if response.status_code != 200:
-            self.stderr.write("Failed to fetch courses")
+            logger.error(
+                f"Failed to fetch course list from UWaterloo Open API. Response status code: {response.status_code}"
+            )
             return
 
         courses_data = response.json()
@@ -44,27 +54,33 @@ class Command(BaseCommand):
         # Fetch class data for each course
         for course in courses_data:
             course_id = course.get("courseId")
-            classes_ep = f"{uw_api_url}/ClassSchedules/{uw_term_code}/{course_id}"
-            classes_response = requests.get(classes_ep, headers=headers)
-            if classes_response.status_code != 200:
-                self.stderr.write(
-                    f"Failed to fetch class data for course id: {course_id}. Response status code: {classes_response.status_code}"
+            class_ep = f"{uw_api_url}/ClassSchedules/{uw_term_code}/{course_id}"
+
+            class_response = requests.get(class_ep, headers=headers)
+
+            if class_response.status_code != 200:
+                subject_code = course.get("subjectCode")
+                catalog_number = course.get("catalogNumber")
+                logger.warning(
+                    f"Failed to fetch class data for {subject_code}{catalog_number}. Response status code: {class_response.status_code}"
                 )
                 continue
 
-            # List of classes
             self.save_course(course)
-            classes_data = classes_response.json()
+            classes_data = class_response.json()
             for class_data in classes_data:
                 self.save_class(class_data)
 
     def save_course(self, course_data):
         course = RawCourse(
             course_id=course_data.get("courseId"),
+            term_code=course_data.get("termCode"),
+            associated_academic_career=course_data.get("associatedAcademicCareer"),
             subject_code=course_data.get("subjectCode"),
             catalog_number=course_data.get("catalogNumber"),
             title=course_data.get("title"),
-            course_component_code=course_data.get("courseComponentCode"),
+            description=course_data.get("description"),
+            requirements_description=course_data.get("requirementsDescription"),
         )
         course.save()
 
@@ -79,12 +95,11 @@ class Command(BaseCommand):
 
         if schedule_data:
             for schedule in schedule_data:
-                print(schedule)
                 schedule_instance, _ = RawClassSchedule.objects.get_or_create(
-                    schedule_start_date = self._convert_to_datetime(
+                    schedule_start_date=self._convert_to_datetime(
                         schedule["scheduleStartDate"]
                     ),
-                    schedule_end_date = self._convert_to_datetime(
+                    schedule_end_date=self._convert_to_datetime(
                         schedule["scheduleEndDate"]
                     ),
                     class_section=schedule["classSection"],
