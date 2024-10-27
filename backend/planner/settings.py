@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "graphene_django",
     "scheduler",
     "corsheaders",
 ]
@@ -174,3 +175,5 @@ LOGGING = {
         },
     },
 }
+
+GRAPHENE = {"SCHEMA": "scheduler.schema.schema"}

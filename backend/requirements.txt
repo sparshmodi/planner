@@ -6,3 +6,4 @@ environ==1.0
 django-cors-headers==4.3.1
 psycopg2-binary
 gunicorn
+graphene-django==3.2.2
