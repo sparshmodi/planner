@@ -12,4 +12,5 @@ class CourseType(DjangoObjectType):
             "title",
             "description",
             "requirements_description",
+            "classes",
         ]

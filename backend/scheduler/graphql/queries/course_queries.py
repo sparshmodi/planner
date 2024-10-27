@@ -4,12 +4,16 @@ import graphene
 
 
 class CourseQueries(graphene.ObjectType):
+    course = graphene.Field(CourseType, course_id=graphene.String(required=True))
     courses = graphene.List(
         CourseType,
         associated_academic_career=graphene.String(),
         subject_code=graphene.String(),
         catalog_number=graphene.String(),
     )
+
+    def resolve_course(root, info, course_id):
+        return Course.objects.get(course_id=course_id)
 
     def resolve_courses(
         root,

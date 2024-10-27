@@ -1,8 +1,8 @@
 import graphene
-from .graphql import CourseQueries
+from .graphql import CourseQueries, TermScheduleQueries
 
 
-class Query(CourseQueries, graphene.ObjectType):
+class Query(CourseQueries, TermScheduleQueries, graphene.ObjectType):
     pass
 
 

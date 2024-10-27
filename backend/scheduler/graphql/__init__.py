@@ -1,3 +1,3 @@
-from .queries import CourseQueries
+from .queries import CourseQueries, TermScheduleQueries
 
-__all__ = ["CourseQueries"]
+__all__ = ["CourseQueries", "TermScheduleQueries"]
