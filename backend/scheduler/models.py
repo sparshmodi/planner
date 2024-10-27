@@ -3,7 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 
 
 # Create your models here.
-class RawCourse(models.Model):
+class Course(models.Model):
     course_id = models.CharField(max_length=31, null=True)
     term_code = models.CharField(max_length=7, null=True)
     associated_academic_career = models.CharField(max_length=7, null=True)
@@ -13,12 +13,14 @@ class RawCourse(models.Model):
     description = models.TextField(null=True)
     requirements_description = models.TextField(null=True)
 
+    valid_schedules = ArrayField(ArrayField(models.IntegerField()))
+
     @classmethod
     def delete_data(cls):
         cls.objects.all().delete()
 
 
-class RawClassSchedule(models.Model):
+class ClassSchedule(models.Model):
     schedule_start_date = models.DateField()
     schedule_end_date = models.DateField()
     class_section = models.IntegerField()
@@ -36,26 +38,12 @@ class RawClassSchedule(models.Model):
         cls.objects.all().delete()
 
 
-class RawClass(models.Model):
+class Class(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="classes")
     course_id = models.CharField(max_length=31)  # Can adjust length as needed
     class_section = models.IntegerField()
     course_component = models.CharField(max_length=31)  # Can adjust length as needed
-    schedule_data = models.ManyToManyField(RawClassSchedule)
-
-    @classmethod
-    def delete_data(cls):
-        cls.objects.all().delete()
-
-
-class CourseClassSchedules(models.Model):
-    course_id = models.CharField(
-        max_length=31, primary_key=True
-    )  # Can adjust length as needed
-    valid_schedules = ArrayField(ArrayField(models.IntegerField()))
-
-    @classmethod
-    def delete_data(cls):
-        cls.objects.all().delete()
+    schedule_data = models.ManyToManyField(ClassSchedule)
 
 
 class CoursesOverlap(models.Model):

@@ -2,7 +2,7 @@ from typing import Tuple, List, Dict
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from ..models import RawClass, CourseClassSchedules, CoursesOverlap
+from ..models import Class, Course, CoursesOverlap
 from ..serializers import ClassSchedulesSerializer
 from ..utils import classes_overlap
 import re
@@ -20,9 +20,10 @@ class ClassScheduleView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        class_combinations_by_course: Dict[str, CourseClassSchedules] = (
-            CourseClassSchedules.objects.in_bulk(course_ids)
-        )
+        course_input = Course.objects.filter(course_ids=course_ids)
+        class_combinations_by_course: Dict[str, Course] = {
+            course.course_id: course for course in course_input
+        }
 
         if len(class_combinations_by_course) != len(course_ids):
             return Response(
@@ -30,15 +31,15 @@ class ClassScheduleView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        class_data_by_course: Dict[str, Dict[int, RawClass]] = {
+        class_data_by_course: Dict[str, Dict[int, Class]] = {
             id: {
                 class_data.class_section: class_data
-                for class_data in RawClass.objects.filter(course_id__iexact=id)
+                for class_data in Class.objects.filter(course_id__iexact=id)
             }
             for id in course_ids
         }
 
-        schedules: List[Dict[str, List[RawClass]]] = [
+        schedules: List[Dict[str, List[Class]]] = [
             {
                 course_id: [
                     class_data_by_course[course_id][section_id]
@@ -59,8 +60,8 @@ class ClassScheduleView(APIView):
     # Generates class schedules for a given courses
     def generate_valid_class_schedules(
         self,
-        class_combinations_by_course: Dict[str, CourseClassSchedules],
-        class_data_by_course: Dict[str, Dict[int, RawClass]],
+        class_combinations_by_course: Dict[str, Course],
+        class_data_by_course: Dict[str, Dict[int, Class]],
     ) -> List[Dict[str, List[int]]]:
 
         course_ids = list(class_combinations_by_course.keys())
@@ -97,7 +98,7 @@ class ClassScheduleView(APIView):
         self,
         course1_schedule: Tuple[int, List[int]],
         course2_schedule: Tuple[int, List[int]],
-        class_data_by_course: Dict[str, Dict[int, RawClass]],
+        class_data_by_course: Dict[str, Dict[int, Class]],
     ) -> bool:
         course1_id, course1_classes = course1_schedule
         course2_id, course2_classes = course2_schedule

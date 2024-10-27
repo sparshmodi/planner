@@ -6,10 +6,9 @@ from datetime import datetime, time
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from scheduler.models import (
-    RawCourse,
-    RawClass,
-    RawClassSchedule,
-    CourseClassSchedules,
+    Course,
+    Class,
+    ClassSchedule,
     CoursesOverlap,
 )
 
@@ -43,10 +42,8 @@ class Command(BaseCommand):
 
         # Delete the previous data and store the new data
         try:
-            RawCourse.delete_data()
-            RawClass.delete_data()
-            RawClassSchedule.delete_data()
-            CourseClassSchedules.delete_data()
+            Course.delete_data()
+            ClassSchedule.delete_data()
             CoursesOverlap.delete_data()
         except:
             print("ERROR: Could not delete previous relational tables")
@@ -72,7 +69,7 @@ class Command(BaseCommand):
                 self.save_class(class_data)
 
     def save_course(self, course_data):
-        course = RawCourse(
+        course = Course(
             course_id=course_data.get("courseId"),
             term_code=course_data.get("termCode"),
             associated_academic_career=course_data.get("associatedAcademicCareer"),
@@ -87,7 +84,7 @@ class Command(BaseCommand):
     def save_class(self, class_data):
         schedule_data = class_data.pop("scheduleData", [])
 
-        section, _ = RawClass.objects.get_or_create(
+        section, _ = Class.objects.get_or_create(
             course_id=class_data["courseId"],
             class_section=class_data["classSection"],
             course_component=class_data["courseComponent"],
@@ -95,7 +92,7 @@ class Command(BaseCommand):
 
         if schedule_data:
             for schedule in schedule_data:
-                schedule_instance, _ = RawClassSchedule.objects.get_or_create(
+                schedule_instance, _ = ClassSchedule.objects.get_or_create(
                     schedule_start_date=self._convert_to_datetime(
                         schedule["scheduleStartDate"]
                     ),
