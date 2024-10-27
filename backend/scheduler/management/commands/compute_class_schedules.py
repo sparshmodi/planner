@@ -1,7 +1,7 @@
 # compute_class_schedules.py
 
 from django.core.management.base import BaseCommand
-from scheduler.models import Course, Class
+from scheduler.models import Course
 from scheduler.utils import classes_overlap
 from itertools import groupby, product, combinations
 from typing import List
@@ -10,11 +10,11 @@ from typing import List
 class Command(BaseCommand):
     help = "Fetch data from database and computed its valid schedules"
 
-    def handle(self):
+    def handle(self, *args, **kwargs):
         all_courses = Course.objects.all()
 
         for course in all_courses:
-            all_classes = Class.objects.filter(course_id__iexact=course.course_id)
+            all_classes = course.classes.all()
             valid_schedules = self.generate_valid_class_schedules(all_classes)
 
             course.valid_schedules = valid_schedules
