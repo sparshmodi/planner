@@ -1,8 +1,8 @@
 import { AppBar, Toolbar, Container } from '@mui/material'
-import { signIn, signOut, useSession } from "next-auth/react"
-import React from "react"
-import { plan, profile, signInText, signOutText } from "@/constants"
-import { MenuItemButton, AuthenticationButton } from "./button"
+import { signIn, signOut, useSession } from 'next-auth/react'
+import React from 'react'
+import { plan, profile, signInText, signOutText } from '@/constants'
+import { MenuItemButton, AuthenticationButton } from './button'
 
 const Header: React.FC = () => {
 	const { status } = useSession()
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
 						<AuthenticationButton
 							hasIcon
 							text={signInText.toLocaleUpperCase()}
-							onClick={() => signIn("google")}
+							onClick={() => signIn('google')}
 						/>}
 					{/* <AuthenticationButton
                         href="/material-ui/getting-started/templates/sign-up/"

@@ -1,8 +1,8 @@
-import { Container } from "@mui/material"
-import { useRouter } from "next/router"
-import React, { ReactNode } from "react"
-import Footer from "./footer"
-import Header from "./header"
+import { Container } from '@mui/material'
+import { useRouter } from 'next/router'
+import React, { ReactNode } from 'react'
+import Footer from './footer'
+import Header from './header'
 
 const BaseLayout: React.FC<{children: ReactNode }> = ({children}) => {
 	const router = useRouter()

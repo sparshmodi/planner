@@ -1,4 +1,4 @@
-import { Course } from "./types"
+import { Course } from './types'
 
 export const snakeToCamel = (obj: any): any => {
 	if (obj === null || typeof obj !== 'object') {

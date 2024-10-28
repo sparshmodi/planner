@@ -1,13 +1,13 @@
-import { Button, Container, Typography } from "@mui/material"
+import { Button, Container, Typography } from '@mui/material'
 import axios from 'axios'
-import { GetServerSideProps } from "next"
-import React, { useState } from "react"
-import AutoComplete from "@/components/autocomplete"
-import ScrollableHorizontalView from "@/components/calendar"
-import { find, selectCourses, noResults, numberOfCourses, DJANGO_BACKEND_URL, FRONTEND_SCHEDULE_EP, BACKEND_COURSE_LIST_EP } from "@/constants"
-import { Course, Schedule } from "@/types"
-import { snakeToCamel } from "@/utils"
-import { useCoursesContext } from "./context"
+import { GetServerSideProps } from 'next'
+import React, { useState } from 'react'
+import AutoComplete from '@/components/autocomplete'
+import ScrollableHorizontalView from '@/components/calendar'
+import { find, selectCourses, noResults, numberOfCourses, DJANGO_BACKEND_URL, FRONTEND_SCHEDULE_EP, BACKEND_COURSE_LIST_EP } from '@/constants'
+import { Course, Schedule } from '@/types'
+import { snakeToCamel } from '@/utils'
+import { useCoursesContext } from './context'
 
 interface PlanPageProps {
     coursesData: Course[] | null

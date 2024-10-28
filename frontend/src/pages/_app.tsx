@@ -1,17 +1,17 @@
 import 'tailwindcss/tailwind.css'
 import { ApolloProvider } from '@apollo/client'
-import { Container, CssBaseline, ThemeProvider, createTheme, Box } from "@mui/material"
+import { Container, CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material'
 import { GoogleAnalytics } from '@next/third-parties/google' 
-import { AppProps } from "next/app"
-import Head from "next/head"
-import { SessionProvider, useSession } from "next-auth/react"
-import React, { PropsWithChildren } from "react"
-import BaseLayout from "@/components/baseLayout"
-import LoadingState from "@/components/loading"
-import { loadingStatus } from "@/constants"
+import { AppProps } from 'next/app'
+import Head from 'next/head'
+import { SessionProvider, useSession } from 'next-auth/react'
+import React, { PropsWithChildren } from 'react'
+import BaseLayout from '@/components/baseLayout'
+import LoadingState from '@/components/loading'
+import { loadingStatus } from '@/constants'
 import client from '@/graphql/apolloClient'
-import CoursesProvider from "./plan/context"
-import getDarkTheme from "./theme"
+import CoursesProvider from './plan/context'
+import getDarkTheme from './theme'
 
 const darkTheme = createTheme(getDarkTheme())
 

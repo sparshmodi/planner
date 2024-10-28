@@ -18,7 +18,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			})
 			res.status(200).send(snakeToCamel(response.data))
 		} catch (e: any) {
-			res.status(500).send({ message: "Internal Server Error", error: e.message } )
+			res.status(500).send({ message: 'Internal Server Error', error: e.message } )
 		}
 	} else {
 		res.status(401).end()
