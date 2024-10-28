@@ -2,6 +2,23 @@
   "extends": "next/core-web-vitals",
   "rules": {
     "semi": [ "error", "never" ],
-    "indent": [ "error", "tab" ]
+    "indent": [ "error", "tab" ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ],
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ]
   }
 }

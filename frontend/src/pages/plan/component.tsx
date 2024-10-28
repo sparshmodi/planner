@@ -1,7 +1,7 @@
-import React, { useState } from "react"
-import { GetServerSideProps } from "next"
-import axios from 'axios'
 import { Button, Container, Typography } from "@mui/material"
+import axios from 'axios'
+import { GetServerSideProps } from "next"
+import React, { useState } from "react"
 import AutoComplete from "@/components/autocomplete"
 import ScrollableHorizontalView from "@/components/calendar"
 import { find, selectCourses, noResults, numberOfCourses, DJANGO_BACKEND_URL, FRONTEND_SCHEDULE_EP, BACKEND_COURSE_LIST_EP } from "@/constants"

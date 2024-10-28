@@ -1,6 +1,6 @@
-import { goBackToHome, notFoundDescription, notFoundTitle } from "@/constants"
 import { Button, Container, Typography } from "@mui/material"
 import Link from "next/link"
+import { goBackToHome, notFoundDescription, notFoundTitle } from "@/constants"
 
 export const PageNotFound = () => {
 	return (

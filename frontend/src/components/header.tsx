@@ -1,8 +1,8 @@
-import React from "react"
-import { signIn, signOut, useSession } from "next-auth/react"
 import { AppBar, Toolbar, Container } from '@mui/material'
-import { MenuItemButton, AuthenticationButton } from "./button"
+import { signIn, signOut, useSession } from "next-auth/react"
+import React from "react"
 import { plan, profile, signInText, signOutText } from "@/constants"
+import { MenuItemButton, AuthenticationButton } from "./button"
 
 const Header: React.FC = () => {
 	const { status } = useSession()

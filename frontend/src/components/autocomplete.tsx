@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
 import { Autocomplete, AutocompleteChangeReason, TextField } from '@mui/material'
+import React, { useState } from 'react'
 import { useCoursesContext } from '@/pages/plan/context'
-import { getCourseName } from '@/utils'
 import { Course } from '@/types'
+import { getCourseName } from '@/utils'
 
 interface AutoCompleteProps {
     availableCourses: Course[]

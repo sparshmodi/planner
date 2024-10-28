@@ -1,7 +1,7 @@
-import { Course } from '@/types'
-import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
+import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
 import React, { useState } from 'react'
+import { Course } from '@/types'
 
 interface SearchBarProps {
     courses: Course[]

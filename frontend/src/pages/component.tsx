@@ -1,12 +1,12 @@
-import React from 'react'
-import Link from 'next/link'
 import { Box, Button, Container, Stack, Typography } from '@mui/material'
-import { uw, plan, tagline, planYourTerm, DJANGO_BACKEND_URL, BACKEND_COURSE_LIST_EP } from '../constants'
 import { GetServerSideProps } from 'next'
-import { Course } from '@/types'
+import Link from 'next/link'
+import React from 'react'
 import SearchBar from '@/components/searchbar'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
+import { Course } from '@/types'
+import { uw, plan, tagline, planYourTerm, DJANGO_BACKEND_URL, BACKEND_COURSE_LIST_EP } from '../constants'
 
 interface LandingPageProps {
     coursesData: Course[] | null

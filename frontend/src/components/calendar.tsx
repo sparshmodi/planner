@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import { EventInput } from '@fullcalendar/core/index.js'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import FullCalendar from '@fullcalendar/react'
+import timeGridPlugin from '@fullcalendar/timegrid'
 import { Button, Container, Typography } from '@mui/material'
 import dayjs from 'dayjs'
+import React, { useState } from 'react'
 import { Course, Schedule } from '@/types'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import { EventInput } from '@fullcalendar/core/index.js'
 import { getCourseName } from '@/utils'
 
 interface CalendarComponentProps {

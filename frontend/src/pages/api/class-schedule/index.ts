@@ -1,8 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { getToken } from 'next-auth/jwt'
 import { BACKEND_SCHEDULE_EP, DJANGO_BACKEND_URL } from '@/constants'
 import { snakeToCamel } from '@/utils'
-import { getToken } from 'next-auth/jwt'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {	
 	const token = await getToken({ req })
