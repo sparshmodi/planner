@@ -13,21 +13,21 @@ interface CoursesProviderProps {
 const CoursesContext = createContext<CoursesContextType | undefined>(undefined)
 
 export const useCoursesContext = () => {
-  const context = useContext(CoursesContext)
-  if (!context) {
-    throw new Error('useCoursesContext must be used within a MyProvider')
-  }
-  return context
+	const context = useContext(CoursesContext)
+	if (!context) {
+		throw new Error('useCoursesContext must be used within a MyProvider')
+	}
+	return context
 }
 
 const CoursesProvider: React.FC<CoursesProviderProps> = ({ children }) => {
-  const [selectedCourses, setSelectedCourses] = useState<Course[]>([])
+	const [selectedCourses, setSelectedCourses] = useState<Course[]>([])
 
-  return (
-    <CoursesContext.Provider value={{ selectedCourses, setSelectedCourses}}>
-      {children}
-    </CoursesContext.Provider>
-  )
+	return (
+		<CoursesContext.Provider value={{ selectedCourses, setSelectedCourses}}>
+			{children}
+		</CoursesContext.Provider>
+	)
 }
 
 export default CoursesProvider
