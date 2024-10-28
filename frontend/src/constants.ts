@@ -10,6 +10,7 @@ export const FRONTEND_SCHEDULE_EP = '/api/class-schedule'
 export const DJANGO_BACKEND_URL = "http://backend:8000"
 export const BACKEND_SCHEDULE_EP = '/class-schedule'
 export const BACKEND_COURSE_LIST_EP = '/course-list'
+export const GRAPHQL_EP = '/graphql'
 
 // Number of courses in autocomplete
 export const numberOfCourses = 5
