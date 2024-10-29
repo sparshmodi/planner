@@ -52,9 +52,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ coursesData, error}) => {
 }
 
 export const getServerSideProps: GetServerSideProps<LandingPageProps> = async () => {
-	try {
-		const client = createApolloClient()
+	const client = createApolloClient()
 
+	try {
 		const { data } = await client.query({
 			query: GET_UNDERGRADUATE_COURSES
 		}) 

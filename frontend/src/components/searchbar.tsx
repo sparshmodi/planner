@@ -1,5 +1,6 @@
 import SearchIcon from '@mui/icons-material/Search'
 import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
+import Link from 'next/link'
 import React, { useState } from 'react'
 import { Course } from '@/types'
 
@@ -48,15 +49,17 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 			onInputChange={handleInputChange}
 			renderOption={(props, course) => (
 				<li {...props} className="flex items-center p-2 hover:bg-gray-200 cursor-pointer">
-					<ListItemText
-						primary={
-							<>
-								<span className="font-bold">{course.subjectCode} {course.catalogNumber}</span>
-								<span className='mx-1 border-b'>—</span>
-								<span className="text-gray-500">{course.title}</span>
-							</>
-						}
-					/>
+					<Link href={`/course/${course.subjectCode}${course.catalogNumber}`}>
+						<ListItemText
+							primary={
+								<>
+									<span className="font-bold">{course.subjectCode} {course.catalogNumber}</span>
+									<span className='mx-1 border-b'>—</span>
+									<span className="text-gray-500">{course.title}</span>
+								</>
+							}
+						/>
+					</Link>
 				</li>
 			)}
 			renderInput={(params) => (

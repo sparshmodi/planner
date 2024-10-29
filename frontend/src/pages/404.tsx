@@ -9,7 +9,7 @@ export const PageNotFound = () => {
 			maxWidth={false}
 			className="h-full absolute flex flex-col justify-center items-center p-10"
 			sx={{
-				backgroundImage: "url('mountain.webp')",
+				backgroundImage: "url('/mountain.webp')",
 				backgroundSize: 'cover',
 				backgroundPosition: 'center',
 			}}

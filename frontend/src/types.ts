@@ -3,6 +3,7 @@ export interface Course {
     subjectCode: string
     catalogNumber: string
     title: string
+    description: string | null
 }
 export interface UwaterlooClassSchedule {
     classSection: number

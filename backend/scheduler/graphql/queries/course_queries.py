@@ -1,10 +1,15 @@
 from ..types import CourseType
 from ...models import Course
 import graphene
+import re
 
 
 class CourseQueries(graphene.ObjectType):
-    course = graphene.Field(CourseType, course_id=graphene.String(required=True))
+    course = graphene.Field(
+        CourseType,
+        subject_code=graphene.String(required=True),
+        catalog_number=graphene.String(required=True),
+    )
     courses = graphene.List(
         CourseType,
         associated_academic_career=graphene.String(),
@@ -12,8 +17,19 @@ class CourseQueries(graphene.ObjectType):
         catalog_number=graphene.String(),
     )
 
-    def resolve_course(root, info, course_id):
-        return Course.objects.get(course_id=course_id)
+    def resolve_course(root, info, subject_code, catalog_number):
+        subject_code_pattern = r"^[a-zA-Z]{2,4}$"  # 2-4 letters
+        catalog_number_pattern = r"^\d{2,}[a-zA-Z0-9]{0,2}$"  # At least 2 digits, at most 2 alphanumerics at end
+
+        if not (
+            re.match(subject_code_pattern, subject_code)
+            and re.match(catalog_number_pattern, catalog_number)
+        ):
+            raise ValueError("Invalid course")
+
+        return Course.objects.get(
+            subject_code=subject_code.upper(), catalog_number=catalog_number.upper()
+        )
 
     def resolve_courses(
         root,
