@@ -4,6 +4,7 @@ export interface Course {
     catalogNumber: string
     title: string
     description: string | null
+    classes?: UwaterlooSection[]
 }
 export interface UwaterlooClassSchedule {
     classSection: number

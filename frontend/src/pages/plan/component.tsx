@@ -1,6 +1,7 @@
-import { Button, Container, Typography } from '@mui/material'
+import { Button, Container, List, ListItem, ListItemText, Typography } from '@mui/material'
 import { Box } from '@mui/material'
 import axios from 'axios'
+import { DateTime } from 'luxon'
 import { GetServerSideProps } from 'next'
 import React, { useState } from 'react'
 import AutoComplete from '@/components/autocomplete'
@@ -13,17 +14,75 @@ import { Course, Schedule } from '@/types'
 import { snakeToCamel } from '@/utils'
 import { useCoursesContext } from './context'
 
+const days = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']
+
 interface PlanPageProps {
 	selectedCourse?: Course
 	availableCourses: Course[]
 }
 
+interface CourseScheduleDateProps {
+	scheduleStartDate: string
+	scheduleEndDate: string
+	weekPattern: string
+}
+
+const CourseScheduleDate: React.FC<CourseScheduleDateProps> = ({scheduleStartDate, scheduleEndDate, weekPattern}) => {
+	const startDate = DateTime.fromFormat(scheduleStartDate, 'yyyy-MM-dd').toFormat('LLL d')
+	const endDate = DateTime.fromFormat(scheduleEndDate, 'yyyy-MM-dd').toFormat('LLL d')
+	const date = (startDate === endDate) ? startDate : startDate + ' - ' + endDate
+
+	return (
+		<>
+			{days.map((day, index) => (
+				<span key={index} className={weekPattern[index] === 'Y' ? 'font-bold' : ''}>{day}</span>
+			))}
+			<span>{' (' + date + ')'}</span>
+		</>
+	) 
+}
+
+
 const CourseContainer: React.FC<{course: Course}> = ({course}) => {
+	const listItemClassName = 'flex bg-white/80 rounded-sm border border-gray-400'
+	const listItemTextClassName = 'flex-1'
+	const listItemPrimaryTypographyProps = {fontWeight: 'bold'}
+
+	const classes = course.classes
+
 	return (
 		<>
 			<Typography variant='h3'>{course.subjectCode} {course.catalogNumber}</Typography>
-			<Typography variant='h5' className='pb-6'>{course.title}</Typography>
+			<Typography variant='h5' className='pt-2 pb-6'>{course.title}</Typography>
 			<Typography variant='body1'>{course.description}</Typography>
+			{classes && 
+			<Container>
+				<Typography variant='h5' className='pt-8 pb-2'>Course Schedule</Typography>
+				<List>
+					<ListItem className={listItemClassName}>
+						<ListItemText primary="Section" className={listItemTextClassName} primaryTypographyProps={listItemPrimaryTypographyProps}/>
+						<ListItemText primary="Time" className={listItemTextClassName} primaryTypographyProps={listItemPrimaryTypographyProps}/>
+						<ListItemText primary="Date" className={listItemTextClassName} primaryTypographyProps={listItemPrimaryTypographyProps}/>
+					</ListItem>
+					{classes
+						.sort((a, b) => a.classSection - b.classSection)
+						.map((courseClass, index) => {
+							const section = courseClass.courseComponent + ' ' + courseClass.classSection
+							const startTime = DateTime.fromFormat(courseClass.scheduleData?.at(0)?.classMeetingStartTime!, 'HH:mm:ss').toFormat('h:mm a')
+							const endTime = DateTime.fromFormat(courseClass.scheduleData?.at(0)?.classMeetingEndTime!, 'HH:mm:ss').toFormat('h:mm a')
+
+							const startDate = courseClass.scheduleData?.at(0)?.scheduleStartDate!
+							const endDate = courseClass.scheduleData?.at(0)?.scheduleEndDate!
+							const weekPattern = courseClass.scheduleData?.at(0)?.classMeetingWeekPatternCode
+
+							return (<ListItem key={index} className={listItemClassName}>
+								<ListItemText primary={section} className={listItemTextClassName} />
+								<ListItemText primary={startTime + ' - ' + endTime} className={listItemTextClassName} />
+								<ListItemText primary={<CourseScheduleDate scheduleStartDate={startDate} scheduleEndDate={endDate} weekPattern={weekPattern!}/>} className={listItemTextClassName} />
+							</ListItem>)
+						})}
+				</List>
+			</Container>}
 		</>
 	)
 }

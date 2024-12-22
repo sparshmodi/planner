@@ -19,6 +19,17 @@ export const GET_COURSE = gql`
       catalogNumber
       title
       description
+      classes {
+        classSection
+        courseComponent
+        scheduleData {
+          scheduleStartDate
+          scheduleEndDate
+          classMeetingStartTime
+          classMeetingEndTime
+          classMeetingWeekPatternCode
+        }
+      }
     }
   }
 `
