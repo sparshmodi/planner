@@ -30,3 +30,4 @@ export const find = 'Find'
 export const notFoundTitle = '404 - Page Not Found'
 export const notFoundDescription = "Oops! The page you're looking for doesn't exist."
 export const goBackToHome = 'Go back to Home'
+export const daysOfWeek = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']

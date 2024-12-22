@@ -1,7 +1,7 @@
 import { AppBar, Toolbar, Container } from '@mui/material'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import React from 'react'
-import { plan, profile, signInText, signOutText } from '@/constants'
+import { profile, signInText, signOutText } from '@/constants'
 import { MenuItemButton, AuthenticationButton } from './button'
 
 const Header: React.FC = () => {
@@ -22,8 +22,7 @@ const Header: React.FC = () => {
                     "
 				>
 					{/* <Image src="/icon.png" alt="logo" width={30} height={30} /> */}
-					<MenuItemButton href="/plan" text={plan.toLocaleUpperCase()} />
-					<MenuItemButton href="/profile" text={profile.toLocaleUpperCase()} />
+					<MenuItemButton href="/profile" text={profile} />
 					{ status === 'authenticated' ? 
 						<AuthenticationButton
 							text={signOutText}

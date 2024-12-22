@@ -4,17 +4,13 @@ import axios from 'axios'
 import { DateTime } from 'luxon'
 import { GetServerSideProps } from 'next'
 import React, { useState } from 'react'
-import AutoComplete from '@/components/autocomplete'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
-import { find, selectCourses, noResults, numberOfCourses, DJANGO_BACKEND_URL, FRONTEND_SCHEDULE_EP, BACKEND_COURSE_LIST_EP } from '@/constants'
+import { noResults, FRONTEND_SCHEDULE_EP, daysOfWeek } from '@/constants'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { Course, Schedule } from '@/types'
-import { snakeToCamel } from '@/utils'
 import { useCoursesContext } from './context'
-
-const days = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']
 
 interface PlanPageProps {
 	selectedCourse?: Course
@@ -34,14 +30,13 @@ const CourseScheduleDate: React.FC<CourseScheduleDateProps> = ({scheduleStartDat
 
 	return (
 		<>
-			{days.map((day, index) => (
+			{daysOfWeek.map((day, index) => (
 				<span key={index} className={weekPattern[index] === 'Y' ? 'font-bold' : ''}>{day}</span>
 			))}
 			<span>{' (' + date + ')'}</span>
 		</>
 	) 
 }
-
 
 const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 	const listItemClassName = 'flex bg-white/80 rounded-sm border border-gray-400'
@@ -179,23 +174,7 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 				className='bg-white/50 rounded-lg p-8 my-8 ml-8 mr-4 shadow-md'
 				sx={{height: '80%', width: '25%'}}
 			>
-				{/* <Typography variant="h5" className="mb-4 text-center" >{selectCourses}</Typography> */}
 				<SearchBar courses={availableCourses}/>
-				{/* <form onSubmit={handleSubmit} className="flex flex-col space-y-4 items-center">
-					{Array
-						.from({ length: numberOfCourses })
-						.map((_, index) => (
-							<AutoComplete key={index} availableCourses={availableCourses} />
-						))
-					}
-					<Button 
-						disabled={selectedCourses.length === 0} 
-						type='submit' 
-						variant="outlined"
-					>
-						{find}
-					</Button>
-				</form> */}
 				{errorMessage &&
                     <Typography 
                     	variant="h6" 

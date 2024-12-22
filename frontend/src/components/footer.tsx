@@ -18,12 +18,12 @@ const Footer: React.FC = () => {
 			>
 				<GitHubIcon />
 			</IconButton>
-			<IconButton
+			{/* <IconButton
 				color="inherit"
 				href="https://www.linkedin.com/in/sparshmodi/"
 			>
 				<LinkedInIcon />
-			</IconButton>
+			</IconButton> */}
 		</Box>
 	)
 }
