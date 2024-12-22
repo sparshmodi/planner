@@ -1,4 +1,4 @@
-import { Container } from '@mui/material'
+import { Box, Container, Typography } from '@mui/material'
 import { GetServerSideProps } from 'next'
 import React from 'react'
 import { createApolloClient } from '@/graphql/apolloClient'
@@ -14,7 +14,7 @@ const CoursePage: React.FC<CoursePageProps> = ({ course }) => {
 		<Container
 			disableGutters
 			maxWidth={false}
-			className="h-full absolute flex flex-col justify-center items-center pb-20 px-8 md:px-0"
+			className="h-full absolute flex flex-row justify-center items-center px-8 md:px-0"
 			sx={{
 				backgroundImage: "url('/mountain.webp')",
 				backgroundSize: 'cover',
@@ -22,8 +22,20 @@ const CoursePage: React.FC<CoursePageProps> = ({ course }) => {
 				backgroundRepeat: 'no-repeat',
 			}}
 		>
-			<h1>{course.subjectCode} {course.catalogNumber} - {course.title}</h1>
-			<p>{course.description}</p>
+			<Box
+				className='bg-white/50 rounded-lg p-8 my-8 ml-8 mr-4 shadow-md'
+				sx={{height: '80%', width: '25%'}}
+			>
+			
+			</Box>
+			<Box 
+				className='bg-white/50 rounded-lg p-8 my-8 ml-4 mr-8 shadow-md'
+				sx={{ height: '80%', width: '75%'}}
+			>
+				<Typography variant='h3'>{course.subjectCode} {course.catalogNumber}</Typography>
+				<Typography variant='h5' className='pb-6'>{course.title}</Typography>
+				<Typography variant='body1'>{course.description}</Typography>
+			</Box>
 		</Container>
 	)
 }
