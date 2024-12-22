@@ -32,9 +32,7 @@ const CoursePage: React.FC<CoursePageProps> = ({ course }) => {
 				className='bg-white/50 rounded-lg p-8 my-8 ml-4 mr-8 shadow-md'
 				sx={{ height: '80%', width: '75%'}}
 			>
-				<Typography variant='h3'>{course.subjectCode} {course.catalogNumber}</Typography>
-				<Typography variant='h5' className='pb-6'>{course.title}</Typography>
-				<Typography variant='body1'>{course.description}</Typography>
+				
 			</Box>
 		</Container>
 	)

@@ -34,7 +34,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 		setSelectedValue(newSelectedValue)
 	}
   
-	return (<FormControl variant="outlined" className='bg-white rounded-md'>
+	return (<FormControl variant="outlined" className='bg-white rounded-md min-w-full'>
 		<InputLabel
 			className={`ml-6 ${inputValue ? 'hidden' : 'flex'}`}
 		>
@@ -49,7 +49,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 			onInputChange={handleInputChange}
 			renderOption={(props, course) => (
 				<li {...props} className="flex items-center p-2 hover:bg-gray-200 cursor-pointer">
-					<Link href={`/course/${course.subjectCode}${course.catalogNumber}`}>
+					<Link href={`/plan/${course.subjectCode}${course.catalogNumber}`}>
 						<ListItemText
 							primary={
 								<>
