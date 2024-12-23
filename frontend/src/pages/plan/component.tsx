@@ -19,22 +19,22 @@ interface PlanPageProps {
 }
 
 interface CourseScheduleDateProps {
-	scheduleStartDate: string
-	scheduleEndDate: string
-	weekPattern: string
+	scheduleStartDate?: string
+	scheduleEndDate?: string
+	weekPattern?: string
 }
 
 const CourseScheduleDate: React.FC<CourseScheduleDateProps> = ({scheduleStartDate, scheduleEndDate, weekPattern}) => {
-	const startDate = DateTime.fromFormat(scheduleStartDate, 'yyyy-MM-dd').toFormat('LLL d')
-	const endDate = DateTime.fromFormat(scheduleEndDate, 'yyyy-MM-dd').toFormat('LLL d')
+	const startDate = scheduleStartDate && DateTime.fromFormat(scheduleStartDate, 'yyyy-MM-dd').toFormat('LLL d')
+	const endDate = scheduleEndDate && DateTime.fromFormat(scheduleEndDate, 'yyyy-MM-dd').toFormat('LLL d')
 	const date = (startDate === endDate) ? startDate : startDate + ' - ' + endDate
 
 	return (
 		<>
-			{daysOfWeek.map((day, index) => (
+			{weekPattern && daysOfWeek.map((day, index) => (
 				<span key={index} className={weekPattern[index] === 'Y' ? 'font-bold' : ''}>{day}</span>
 			))}
-			<span>{' (' + date + ')'}</span>
+			<span>{startDate ? ' (' + date + ')': ''}</span>
 		</>
 	) 
 }
@@ -48,6 +48,7 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 
 	const { addedCourses, setAddedCourses } = useCoursesContext()
 	const hasSelectedCourse = addedCourses.some(c => c.courseId === course.courseId)
+	const isButtonDisabled = !hasSelectedCourse && addedCourses.length >= 6
 
 	return (
 		<>
@@ -57,9 +58,11 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 					variant='contained'
 					color={hasSelectedCourse ? 'error' : 'primary'}
 					sx={{ // fix this later
-						backgroundColor: `${hasSelectedCourse ? '#D32F2F' : '#0A66C2'} !important`,
+						...(!isButtonDisabled && {
+							backgroundColor: `${hasSelectedCourse ? '#D32F2F' : '#0A66C2'} !important`,
+						})
 					}}
-					disabled={!hasSelectedCourse && addedCourses.length >= 6}
+					disabled={isButtonDisabled}
 					onClick={() => {
 						if (hasSelectedCourse) {
 							setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
@@ -93,16 +96,20 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 						.sort((a, b) => a.classSection - b.classSection)
 						.map((courseClass, index) => {
 							const section = courseClass.courseComponent + ' ' + courseClass.classSection
-							const startTime = DateTime.fromFormat(courseClass.scheduleData?.at(0)?.classMeetingStartTime!, 'HH:mm:ss').toFormat('h:mm a')
-							const endTime = DateTime.fromFormat(courseClass.scheduleData?.at(0)?.classMeetingEndTime!, 'HH:mm:ss').toFormat('h:mm a')
 
-							const startDate = courseClass.scheduleData?.at(0)?.scheduleStartDate!
-							const endDate = courseClass.scheduleData?.at(0)?.scheduleEndDate!
+							const startTime = courseClass.scheduleData?.at(0)?.classMeetingStartTime
+							const parsedStartTime = startTime && DateTime.fromFormat(startTime, 'HH:mm:ss').toFormat('h:mm a')
+
+							const endTime = courseClass.scheduleData?.at(0)?.classMeetingEndTime
+							const parsedEndTime = endTime && DateTime.fromFormat(endTime, 'HH:mm:ss').toFormat('h:mm a')
+
+							const startDate = courseClass.scheduleData?.at(0)?.scheduleStartDate
+							const endDate = courseClass.scheduleData?.at(0)?.scheduleEndDate
 							const weekPattern = courseClass.scheduleData?.at(0)?.classMeetingWeekPatternCode
 
 							return (<ListItem key={index} className={listItemClassName}>
 								<ListItemText primary={section} className={listItemTextClassName} />
-								<ListItemText primary={startTime + ' - ' + endTime} className={listItemTextClassName} />
+								<ListItemText primary={parsedStartTime && parsedEndTime ? parsedStartTime + ' - ' + parsedEndTime : ''} className={listItemTextClassName} />
 								<ListItemText primary={<CourseScheduleDate scheduleStartDate={startDate} scheduleEndDate={endDate} weekPattern={weekPattern!}/>} className={listItemTextClassName} />
 							</ListItem>)
 						})}
@@ -244,7 +251,7 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 				}
 			</Box>
 			<Box 
-				className='bg-white/50 rounded-lg p-8 my-8 ml-4 mr-8 shadow-md'
+				className='bg-white/50 rounded-lg p-8 my-8 ml-4 mr-8 shadow-md overflow-y-scroll'
 				sx={{ height: '80%', width: '75%'}}
 			>
 				{selectedCourse && 
