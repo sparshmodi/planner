@@ -1,7 +1,7 @@
 import { AppBar, Toolbar, Container } from '@mui/material'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import React from 'react'
-import { profile, signInText, signOutText } from '@/constants'
+import { AuthenticationStatus, profile, signInText, signOutText } from '@/constants'
 import { MenuItemButton, AuthenticationButton } from './button'
 
 const Header: React.FC = () => {
@@ -22,8 +22,8 @@ const Header: React.FC = () => {
                     "
 				>
 					{/* <Image src="/icon.png" alt="logo" width={30} height={30} /> */}
-					<MenuItemButton href="/profile" text={profile} />
-					{ status === 'authenticated' ? 
+					{ status === AuthenticationStatus.Authenticated && <MenuItemButton href="/profile" text={profile} />}
+					{ status === AuthenticationStatus.Authenticated ? 
 						<AuthenticationButton
 							text={signOutText}
 							onClick={() => signOut()}

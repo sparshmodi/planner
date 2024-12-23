@@ -16,12 +16,12 @@ interface AuthenticationButtonProps {
 
 export const MenuItemButton: React.FC<MenuItemButtonProps> = ({ href, text }) => {
 	return (
-		<Link href={href} className="px-1">
+		<Link href={href} className="px-1" passHref>
 			<Button
-				variant='text'
-				className="px-4 text-primary transition duration-300 ease-in-out rounded-xl"
+				variant='outlined'
+				component='a'
 			>
-				<Typography variant='h6'>
+				<Typography>
 					{text}
 				</Typography>
 			</Button>
@@ -33,7 +33,7 @@ export const AuthenticationButton: React.FC<AuthenticationButtonProps> = ({ hasI
 	return (
 		<Button 
 			variant='outlined'
-			component="a"
+			component='a'
 			onClick={onClick}
 			startIcon={ hasIcon && <Google />} // does not follow google's guidelines, fix later
 		>

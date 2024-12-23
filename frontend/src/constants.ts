@@ -1,6 +1,8 @@
 // next-auth
-export const loadingStatus = 'loading'
-export const authenticatedStatus = 'authenticated'
+export enum AuthenticationStatus {
+    Loading = 'loading',
+    Authenticated = 'authenticated',
+}
 
 // URLs and EPs
 // (FrontEnd)

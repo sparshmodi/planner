@@ -8,7 +8,7 @@ import { SessionProvider, useSession } from 'next-auth/react'
 import React, { PropsWithChildren } from 'react'
 import BaseLayout from '@/components/baseLayout'
 import LoadingState from '@/components/loading'
-import { loadingStatus } from '@/constants'
+import { AuthenticationStatus } from '@/constants'
 import client from '@/graphql/apolloClient'
 import CoursesProvider from './plan/context'
 import getDarkTheme from './theme'
@@ -50,7 +50,7 @@ const Auth: React.FC<PropsWithChildren> = ({ children }) => {
 	// status can only be "loading" or "authenticated"
 	const { status } = useSession({ required: false })
 
-	if (status === loadingStatus) {
+	if (status === AuthenticationStatus.Loading) {
 		return (
 			<Container className="flex min-h-screen w-full items-center justify-center">
 				<LoadingState />
