@@ -6,6 +6,13 @@ export interface Course {
     description: string | null
     classes?: UwaterlooSection[]
 }
+
+export interface LocalStorageCourse {
+    courseId: string
+    subjectCode: string
+    catalogNumber: string
+}
+
 export interface UwaterlooClassSchedule {
     classSection: number
     scheduleStartDate: string // $date-time

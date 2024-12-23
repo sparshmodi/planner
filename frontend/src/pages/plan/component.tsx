@@ -6,7 +6,7 @@ import { GetServerSideProps } from 'next'
 import React, { useState } from 'react'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
-import { noResults, FRONTEND_SCHEDULE_EP, daysOfWeek } from '@/constants'
+import { noResults, FRONTEND_SCHEDULE_EP, daysOfWeek, addCourseToPlan, removeCourseFromPlan } from '@/constants'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { Course, Schedule } from '@/types'
@@ -45,9 +45,37 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 
 	const classes = course.classes
 
+	const { addedCourses, setAddedCourses } = useCoursesContext()
+	const hasSelectedCourse = addedCourses.some(c => c.courseId === course.courseId)
+
 	return (
 		<>
-			<Typography variant='h3'>{course.subjectCode} {course.catalogNumber}</Typography>
+			<Box className='flex justify-between'> 
+				<Typography variant='h3'>{course.subjectCode} {course.catalogNumber}</Typography>
+				<Button 
+					variant='contained'
+					color={hasSelectedCourse ? 'error' : 'primary'}
+					sx={{ // fix this later
+						backgroundColor: `${hasSelectedCourse ? '#D32F2F' : '#0A66C2'} !important`,
+					}}
+					onClick={() => {
+						if (hasSelectedCourse) {
+							setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
+						} else {
+							setAddedCourses([...addedCourses, {
+								courseId: course.courseId,
+								subjectCode: course.subjectCode,
+								catalogNumber: course.catalogNumber
+							}])
+						}
+					}}
+				>
+					<Typography>
+						{hasSelectedCourse ? removeCourseFromPlan : addCourseToPlan}
+					</Typography>
+				</Button>
+			</Box>
+			
 			<Typography variant='h5' className='pt-2 pb-6'>{course.title}</Typography>
 			<Typography variant='body1'>{course.description}</Typography>
 			{classes && 
@@ -188,7 +216,9 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 				className='bg-white/50 rounded-lg p-8 my-8 ml-4 mr-8 shadow-md'
 				sx={{ height: '80%', width: '75%'}}
 			>
-				{selectedCourse && <CourseContainer course={selectedCourse} />}
+				{selectedCourse && 
+					<CourseContainer course={selectedCourse} />
+				}
 			</Box>
 		</Container>
 	)

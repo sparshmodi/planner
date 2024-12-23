@@ -214,9 +214,6 @@ export default function getDarkTheme(): ThemeOptions {
 						backgroundColor: '#fff',
 						border: '1px solid',
 						borderColor: gray[100],
-						':before': {
-							backgroundColor: 'transparent',
-						},
 						'&:first-of-type': {
 							borderTopLeftRadius: 10,
 							borderTopRightRadius: 10,
