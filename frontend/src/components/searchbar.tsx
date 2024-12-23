@@ -56,7 +56,9 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 				<li 
 					{...props} 
 					className="flex items-center p-2 hover:bg-gray-200 cursor-pointer" 
-					onClick={() => {setOpen(false)}}
+					onClick={() => {
+						setOpen(false)
+					}}
 				>
 					<Link href={`/plan/${course.subjectCode}${course.catalogNumber}`} >
 						<ListItemText
