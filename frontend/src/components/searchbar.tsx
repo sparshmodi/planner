@@ -1,7 +1,7 @@
 import SearchIcon from '@mui/icons-material/Search'
 import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Course } from '@/types'
 
 interface SearchBarProps {
@@ -16,6 +16,11 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 	const [selectedValue, setSelectedValue] = useState<Course | null>(null)
 	const [inputValue, setInputValue] = useState<string>('')
 	const [filteredOptions, setFilteredOptions] = useState<Course[]>([])
+	const [open, setOpen] = useState(false)
+
+	useEffect(() => {
+		setOpen(inputValue !== null && filteredOptions.length > 0)
+	}, [inputValue, filteredOptions])
   
 	const handleInputChange = (event: React.SyntheticEvent, newInputValue: string) => {
 		setInputValue(newInputValue)
@@ -48,8 +53,12 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 			inputValue={inputValue}
 			onInputChange={handleInputChange}
 			renderOption={(props, course) => (
-				<li {...props} className="flex items-center p-2 hover:bg-gray-200 cursor-pointer">
-					<Link href={`/plan/${course.subjectCode}${course.catalogNumber}`}>
+				<li 
+					{...props} 
+					className="flex items-center p-2 hover:bg-gray-200 cursor-pointer" 
+					onClick={() => {setOpen(false)}}
+				>
+					<Link href={`/plan/${course.subjectCode}${course.catalogNumber}`} >
 						<ListItemText
 							primary={
 								<>
@@ -75,7 +84,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 					}}
 				/>
 			)}
-			open={inputValue !== null && filteredOptions.length > 0}
+			open={open}
 			noOptionsText="No options"
 		/>
 	</FormControl>

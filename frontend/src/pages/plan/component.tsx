@@ -32,7 +32,7 @@ const CourseScheduleDate: React.FC<CourseScheduleDateProps> = ({scheduleStartDat
 	return (
 		<>
 			{weekPattern && daysOfWeek.map((day, index) => (
-				<span key={index} className={weekPattern[index] === 'Y' ? 'font-bold' : ''}>{day}</span>
+				<span key={index} className={weekPattern[index] === 'Y' ? 'font-bold' : 'text-gray-400'}>{day}</span>
 			))}
 			<span>{startDate ? ' (' + date + ')': ''}</span>
 		</>
