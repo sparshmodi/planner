@@ -1,10 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { Course, LocalStorageCourse } from '@/types'
+import { LocalStorageCourse } from '@/types'
 
 interface CoursesContextType {
-    selectedCourses: Course[]
-    setSelectedCourses: React.Dispatch<React.SetStateAction<Course[]>>
-
 	addedCourses: LocalStorageCourse[]
 	setAddedCourses: React.Dispatch<React.SetStateAction<LocalStorageCourse[]>>
 }
@@ -24,7 +21,6 @@ export const useCoursesContext = () => {
 }
 
 const CoursesProvider: React.FC<CoursesProviderProps> = ({ children }) => {
-	const [selectedCourses, setSelectedCourses] = useState<Course[]>([])
 	const [addedCourses, setAddedCourses] = useState<LocalStorageCourse[]>([])
 
 	useEffect(() => {
@@ -39,7 +35,7 @@ const CoursesProvider: React.FC<CoursesProviderProps> = ({ children }) => {
 	}, [addedCourses])
 
 	return (
-		<CoursesContext.Provider value={{ selectedCourses, setSelectedCourses, addedCourses, setAddedCourses }}>
+		<CoursesContext.Provider value={{ addedCourses, setAddedCourses }}>
 			{children}
 		</CoursesContext.Provider>
 	)
