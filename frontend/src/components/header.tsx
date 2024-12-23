@@ -1,4 +1,7 @@
 import { AppBar, Toolbar, Container } from '@mui/material'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import React from 'react'
 import { AuthenticationStatus, profile, signInText, signOutText } from '@/constants'
@@ -6,6 +9,7 @@ import { MenuItemButton, AuthenticationButton } from './button'
 
 const Header: React.FC = () => {
 	const { status } = useSession()
+	const { pathname } = useRouter()
 
 	return (
 		<AppBar
@@ -21,8 +25,13 @@ const Header: React.FC = () => {
                         gap-5
                     "
 				>
-					{/* <Image src="/icon.png" alt="logo" width={30} height={30} /> */}
-					{ status === AuthenticationStatus.Authenticated && <MenuItemButton href="/profile" text={profile} />}
+					{ status === AuthenticationStatus.Authenticated && 
+						(pathname !== '/profile' ? 
+							<MenuItemButton href="/profile" text={profile} /> :
+							<Link href={'/'}>
+								<Image src="/icon.png" alt="logo" width={30} height={30} />
+							</Link>
+						)}
 					{ status === AuthenticationStatus.Authenticated ? 
 						<AuthenticationButton
 							text={signOutText}
