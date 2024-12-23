@@ -31,7 +31,7 @@
     "eslint-config-next": "13.4.17",
     "graphql": "^16.9.0",
     "luxon": "^3.4.1",
-    "next": "^14.2.13",
+    "next": "^14.2.20",
     "next-auth": "^4.24.11",
     "react": "18.2.0",
     "react-dom": "18.2.0",
