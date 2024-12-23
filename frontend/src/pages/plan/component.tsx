@@ -7,9 +7,10 @@ import { GetServerSideProps } from 'next'
 import React, { useState } from 'react'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
-import { noResults, FRONTEND_SCHEDULE_EP, daysOfWeek, addCourseToPlan, removeCourseFromPlan } from '@/constants'
+import { noResults, FRONTEND_SCHEDULE_EP, daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules } from '@/constants'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
+import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
 import { Course, Schedule } from '@/types'
 import { useCoursesContext } from './context'
 
@@ -124,9 +125,7 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 	const [schedules, setSchedules] = useState<Schedule[]>([])
 	const [ errorMessage, setErrorMessage] = useState('')
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-
+	const handleSubmit = async () => {
 		const courseQuery = selectedCourses.map(course => course.courseId).join(',')
 		try {
 			const response = await axios.get(FRONTEND_SCHEDULE_EP, {
@@ -207,7 +206,7 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 			}}
 		>
 			<Box
-				className='bg-white/50 rounded-lg p-8 my-8 ml-8 mr-4 shadow-md'
+				className='bg-white/50 rounded-lg p-8 my-8 ml-8 mr-4 shadow-md flex flex-col'
 				sx={{height: '80%', width: '25%'}}
 			>
 				<SearchBar courses={availableCourses}/>
@@ -249,6 +248,19 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
                     	{errorMessage}
                     </Typography>
 				}
+				<Button 
+					disabled={addedCourses.length === 0}  
+					variant='contained'
+					color='primary'
+					className='mt-10'
+					sx={{
+						backgroundColor: '#0A66C2 !important',     
+						opacity: 0.8,
+					}}
+					onClick={handleSubmit}
+				>
+					{findTermSchedules}
+				</Button>
 			</Box>
 			<Box 
 				className='bg-white/50 rounded-lg p-8 my-8 ml-4 mr-8 shadow-md overflow-y-scroll'
