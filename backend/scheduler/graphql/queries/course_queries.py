@@ -12,6 +12,7 @@ class CourseQueries(graphene.ObjectType):
     )
     courses = graphene.List(
         CourseType,
+        course_ids=graphene.List(graphene.NonNull(graphene.String)),
         associated_academic_career=graphene.String(),
         subject_code=graphene.String(),
         catalog_number=graphene.String(),
@@ -34,6 +35,7 @@ class CourseQueries(graphene.ObjectType):
     def resolve_courses(
         root,
         info,
+        course_ids=None,
         associated_academic_career=None,
         subject_code=None,
         catalog_number=None,
@@ -49,6 +51,9 @@ class CourseQueries(graphene.ObjectType):
             )
 
         queryset = Course.objects.all()
+
+        if course_ids:
+            queryset = queryset.filter(course_id__in=course_ids)
 
         if associated_academic_career:
             queryset = queryset.filter(

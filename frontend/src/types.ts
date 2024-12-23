@@ -30,4 +30,12 @@ export interface UwaterlooSection {
     scheduleData: UwaterlooClassSchedule[] | null
 }
 
-export type Schedule = {[courseId: string]: UwaterlooSection[]}
+export type Schedule = {
+    courseId: string
+    classes: number[]
+}[]
+
+export type TermScheduleData = {
+    termSchedules: Schedule[]
+    courses: Course[]
+}

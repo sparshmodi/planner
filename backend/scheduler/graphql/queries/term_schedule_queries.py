@@ -11,11 +11,11 @@ logger = logging.getLogger("planner")
 
 class TermScheduleQueries(graphene.ObjectType):
     term_schedules = graphene.List(
-        graphene.List(TermScheduleResponseType), courses=graphene.String(required=True)
+        graphene.List(TermScheduleResponseType), courseIds=graphene.List(graphene.NonNull(graphene.String), required=True)
     )
 
-    def resolve_term_schedules(self, info, courses):
-        course_ids: List[str] = courses.split(",")[:6]
+    def resolve_term_schedules(self, info, courseIds):
+        course_ids: List[str] = courseIds[:6]
 
         # Sanitizing course ids parameter
         decimal_number_regex = re.compile(r"^\d+$")

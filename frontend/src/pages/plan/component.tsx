@@ -1,22 +1,23 @@
 import DeleteIcon from '@mui/icons-material/Delete'
 import { Button, Container, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material'
 import { Box } from '@mui/material'
-import axios from 'axios'
 import { DateTime } from 'luxon'
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
-import { noResults, FRONTEND_SCHEDULE_EP, daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules } from '@/constants'
+import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules } from '@/constants'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
-import { Course, Schedule } from '@/types'
+import { CookieCourse, Course, TermScheduleData } from '@/types'
 import { useCoursesContext } from './context'
 
 interface PlanPageProps {
-	selectedCourse?: Course
 	availableCourses: Course[]
+	selectedCourse?: Course
+	termSchedules?: TermScheduleData
 }
 
 interface CourseScheduleDateProps {
@@ -120,32 +121,13 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 	)
 }
 
-const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) => {
+const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, termSchedules }) => {
 	const { addedCourses, setAddedCourses } = useCoursesContext()
-	const [schedules, setSchedules] = useState<Schedule[]>([])
 	const [ errorMessage, setErrorMessage] = useState('')
+	const router = useRouter()
 
-	const handleSubmit = async () => {
-		const courseQuery = selectedCourses.map(course => course.courseId).join(',')
-		try {
-			const response = await axios.get(FRONTEND_SCHEDULE_EP, {
-				withCredentials: true,
-		        params: {
-					courses: courseQuery
-				}
-			})
-			const result = await response.data
-            
-			if (result.length === 0) {
-				handleError(noResults)
-				return
-			}
-
-			setSchedules(result)
-		} catch (e: any) {
-			console.error(e)
-			handleError(e.message)
-		}
+	const handleClick = async () => {
+		router.push('/plan/schedule')
 	}
 
 	const handleError = (error: string) => {
@@ -154,44 +136,6 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 			setErrorMessage('')
 		}, 5000)
 	}
-
-	// return (
-	// 	<Container className="flex items-center justify-center w-full mt-32 gap-4">
-	// 		<Container className="flex w-1/3 flex-col items-center gap-4">
-	// 			<Typography variant="h5" className="mb-4 text-center" >{selectCourses}</Typography>
-	// 			<form onSubmit={handleSubmit} className="flex flex-col space-y-4 items-center">
-	// 				{Array
-	// 					.from({ length: numberOfCourses })
-	// 					.map((_, index) => (
-	// 						<AutoComplete key={index} availableCourses={coursesData} />
-	// 					))
-	// 				}
-	// 				<Button 
-	// 					disabled={selectedCourses.length === 0} 
-	// 					type='submit' 
-	// 					variant="outlined"
-	// 				>
-	// 					{find}
-	// 				</Button>
-	// 			</form>
-	// 			{errorMessage &&
-	//                 <Typography 
-	//                 	variant="h6" 
-	//                 	className="text-red-500 text-center"
-	//                 >
-	//                 	{errorMessage}
-	//                 </Typography>
-	// 			}
-	// 		</Container>
-	// 		{schedules.length > 0 && 
-	//             <Container >
-	//             	<ScrollableHorizontalView 
-	//             		schedules={schedules} 
-	//             		availableCourses={coursesData}/>
-	//             </Container>
-	// 		}
-	// 	</Container>
-	// )
 
 	return (
 		<Container
@@ -264,7 +208,7 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 						backgroundColor: '#0A66C2 !important',     
 						opacity: 0.8,
 					}}
-					onClick={handleSubmit}
+					onClick={handleClick}
 				>
 					{findTermSchedules}
 				</Button>
@@ -275,6 +219,9 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 			>
 				{selectedCourse && 
 					<CourseContainer course={selectedCourse} />
+				}
+				{termSchedules &&
+					<ScrollableHorizontalView termScheduleData={termSchedules} />
 				}
 			</Box>
 		</Container>
@@ -291,13 +238,35 @@ export const getServerSideProps: GetServerSideProps<PlanPageProps> = async (cont
 
 	try {
 		if (slug === 'schedule') {
-			const { data } = await availableCoursesPromise
+			const cookies = context.req.headers.cookie || ''
+			const storedAddedCourses = cookies
+				.split('; ')
+				.find(row => row.startsWith('addedCourses='))
+				?.split('=')[1]
+			
+			if (!storedAddedCourses) {
+				return { notFound: true }
+			}
 
-			const sortedResults: Course[] = [...data.courses].sort((a, b) =>
+			const [ termSchedulesResponse, availableCoursesResponse ] = await Promise.all([
+				client.query({
+					query: GET_TERM_SCHEDULES,
+					variables: {
+						courseIds: JSON.parse(decodeURIComponent(storedAddedCourses)).map((course: CookieCourse) => course.courseId)
+					}
+				}),
+				availableCoursesPromise
+			])
+
+			if (!termSchedulesResponse.data.termSchedules || !termSchedulesResponse.data.courses) {
+				return { notFound: true }
+			}
+
+			const sortedResults: Course[] = [...availableCoursesResponse.data.courses].sort((a, b) =>
 				a.subjectCode.localeCompare(b.subjectCode) ||
 				a.catalogNumber.localeCompare(b.catalogNumber)
 			)
-			return { props: { availableCourses: sortedResults }}
+			return { props: { availableCourses: sortedResults, termSchedules: termSchedulesResponse.data } }
 		}
 		const course = slug.match(/(.*?)(\d.*)/)?.slice(1) 
 
