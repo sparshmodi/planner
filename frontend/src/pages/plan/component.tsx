@@ -213,32 +213,39 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 				<Container className='mt-8 pl-0'>
 					<Typography variant="h5" >Added Courses</Typography>
 					<List>
-						{addedCourses
-							.sort((a, b) => a.subjectCode.localeCompare(b.subjectCode) || a.catalogNumber.localeCompare(b.catalogNumber))
-							.map(course => (
-								<ListItem 
-									key={course.courseId}
-									className='py-1'
-									secondaryAction={
-										<IconButton 
-											edge='end' 
-											size='small'
-											onClick={() => {
-												setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
-											}}
-										>
-											<DeleteIcon />
-										</IconButton>
-									}
-								>
-									<ListItemText primary={`${course.subjectCode} ${course.catalogNumber}`} />
-								</ListItem>
-							))}
+						{!addedCourses.length ? 
+							<ListItem className='py-1'>
+								<ListItemText 
+									primary={'No courses added yet'} 
+									primaryTypographyProps={{variant: 'body2', fontStyle: 'italic'}}
+								/>
+							</ListItem>
+						 : addedCourses
+								.sort((a, b) => a.subjectCode.localeCompare(b.subjectCode) || a.catalogNumber.localeCompare(b.catalogNumber))
+								.map(course => (
+									<ListItem 
+										key={course.courseId}
+										className='py-1'
+										secondaryAction={
+											<IconButton 
+												edge='end' 
+												size='small'
+												onClick={() => {
+													setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
+												}}
+											>
+												<DeleteIcon />
+											</IconButton>
+										}
+									>
+										<ListItemText primary={`${course.subjectCode} ${course.catalogNumber}`} />
+									</ListItem>
+								))}
 					</List>
 				</Container>
 				<Container className='mt-8 pl-0'>
 					<Typography variant="h5" >Filters</Typography>
-					<Typography variant="body2" className='pl-4 pt-1'>Coming soon...</Typography>
+					<Typography variant="body2" className='pl-4 pt-1 italic'>Coming soon...</Typography>
 				</Container>
 				{errorMessage &&
                     <Typography 
