@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { LocalStorageCourse } from '@/types'
+import { CookieCourse } from '@/types'
 
 interface CoursesContextType {
-	addedCourses: LocalStorageCourse[]
-	setAddedCourses: React.Dispatch<React.SetStateAction<LocalStorageCourse[]>>
+	addedCourses: CookieCourse[]
+	setAddedCourses: React.Dispatch<React.SetStateAction<CookieCourse[]>>
 }
 
 interface CoursesProviderProps {
@@ -21,17 +21,24 @@ export const useCoursesContext = () => {
 }
 
 const CoursesProvider: React.FC<CoursesProviderProps> = ({ children }) => {
-	const [addedCourses, setAddedCourses] = useState<LocalStorageCourse[]>([])
+	const [addedCourses, setAddedCourses] = useState<CookieCourse[]>([])
 
 	useEffect(() => {
-		const storedAddedCourses = localStorage.getItem('addedCourses')
+		const storedAddedCourses = document.cookie
+			.split('; ')
+			.find(row => row.startsWith('addedCourses='))
+			?.split('=')[1]
+
 		if (storedAddedCourses) {
-			setAddedCourses(JSON.parse(storedAddedCourses))
+			setAddedCourses(JSON.parse(decodeURIComponent(storedAddedCourses)))
 		}
 	}, [])
 	
 	useEffect(() => {
-		localStorage.setItem('addedCourses', JSON.stringify(addedCourses))
+		const days = 7
+		const expires = `expires=${new Date(Date.now() + days * 864e5).toUTCString()}`
+
+		document.cookie = `addedCourses=${encodeURIComponent(JSON.stringify(addedCourses))}; ${expires}; path=/`
 	}, [addedCourses])
 
 	return (

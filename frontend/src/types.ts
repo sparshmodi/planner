@@ -7,7 +7,7 @@ export interface Course {
     classes?: UwaterlooSection[]
 }
 
-export interface LocalStorageCourse {
+export interface CookieCourse {
     courseId: string
     subjectCode: string
     catalogNumber: string
