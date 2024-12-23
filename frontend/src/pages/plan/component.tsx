@@ -1,4 +1,5 @@
-import { Button, Container, List, ListItem, ListItemText, Typography } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { Button, Container, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material'
 import { Box } from '@mui/material'
 import axios from 'axios'
 import { DateTime } from 'luxon'
@@ -58,6 +59,7 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 					sx={{ // fix this later
 						backgroundColor: `${hasSelectedCourse ? '#D32F2F' : '#0A66C2'} !important`,
 					}}
+					disabled={!hasSelectedCourse && addedCourses.length >= 6}
 					onClick={() => {
 						if (hasSelectedCourse) {
 							setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
@@ -111,8 +113,7 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 }
 
 const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) => {
-	console.log('selectedCourse', selectedCourse)
-	const { selectedCourses } = useCoursesContext()
+	const { addedCourses, setAddedCourses } = useCoursesContext()
 	const [schedules, setSchedules] = useState<Schedule[]>([])
 	const [ errorMessage, setErrorMessage] = useState('')
 
@@ -203,6 +204,36 @@ const PlanPage: React.FC<PlanPageProps> = ({selectedCourse, availableCourses }) 
 				sx={{height: '80%', width: '25%'}}
 			>
 				<SearchBar courses={availableCourses}/>
+				<Container className='mt-8 pl-0'>
+					<Typography variant="h5" >Added Courses</Typography>
+					<List>
+						{addedCourses
+							.sort((a, b) => a.subjectCode.localeCompare(b.subjectCode) || a.catalogNumber.localeCompare(b.catalogNumber))
+							.map(course => (
+								<ListItem 
+									key={course.courseId}
+									className='py-1'
+									secondaryAction={
+										<IconButton 
+											edge='end' 
+											size='small'
+											onClick={() => {
+												setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
+											}}
+										>
+											<DeleteIcon />
+										</IconButton>
+									}
+								>
+									<ListItemText primary={`${course.subjectCode} ${course.catalogNumber}`} />
+								</ListItem>
+							))}
+					</List>
+				</Container>
+				<Container className='mt-8 pl-0'>
+					<Typography variant="h5" >Filters</Typography>
+					<Typography variant="body2" className='pl-4 pt-1'>Coming soon...</Typography>
+				</Container>
 				{errorMessage &&
                     <Typography 
                     	variant="h6" 
