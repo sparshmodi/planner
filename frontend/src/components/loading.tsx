@@ -1,8 +1,8 @@
-import React from "react"
-import { CircularProgress } from "@mui/material"
+import { CircularProgress } from '@mui/material'
+import React from 'react'
 
 const LoadingState: React.FC = () => {
-    return <CircularProgress color="secondary" />
+	return <CircularProgress color="secondary" />
 }
 
 export default LoadingState

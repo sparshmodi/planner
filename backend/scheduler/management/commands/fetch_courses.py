@@ -1,10 +1,17 @@
 # fetch_courses.py
 
 import requests
+import logging
 from datetime import datetime, time
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from scheduler.models import RawCourse, RawClass, RawClassSchedule, CourseClassSchedules, CoursesOverlap
+from scheduler.models import (
+    Course,
+    Class,
+    ClassSchedule,
+)
+
+logger = logging.getLogger("planner")
 
 
 class Command(BaseCommand):
@@ -12,7 +19,7 @@ class Command(BaseCommand):
 
     def _convert_to_time(self, date: str) -> time:
         return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S").time()
-    
+
     def _convert_to_datetime(self, date: str) -> datetime:
         return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
 
@@ -21,86 +28,105 @@ class Command(BaseCommand):
         uw_term_code = settings.UWATERLOO_TERM_CODE
         headers = {"x-api-key": settings.UWATERLOO_API_KEY}
 
-        # Fetch courses
-        courses_ep = f"{uw_api_url}/Courses/{uw_term_code}"
+        courses_ep = f"{uw_api_url}/Courses/{uw_term_code}/CS"
         response = requests.get(courses_ep, headers=headers)
 
         if response.status_code != 200:
-            self.stderr.write("Failed to fetch courses")
+            logger.error(
+                f"Failed to fetch course list from UWaterloo Open API. Response status code: {response.status_code}"
+            )
             return
 
-        courses_data = response.json()
-
-        # Delete the previous data and store the new data
-        try:
-            RawCourse.delete_data()
-            RawClass.delete_data()
-            RawClassSchedule.delete_data()
-            CourseClassSchedules.delete_data()
-            CoursesOverlap.delete_data()
-        except:
-            print("ERROR: Could not delete previous relational tables")
+        courses_json = response.json()
 
         # Fetch class data for each course
-        for course in courses_data:
-            course_id = course.get("courseId")
-            classes_ep = f"{uw_api_url}/ClassSchedules/{uw_term_code}/{course_id}"
-            classes_response = requests.get(classes_ep, headers=headers)
-            if classes_response.status_code != 200:
-                self.stderr.write(
-                    f"Failed to fetch class data for course id: {course_id}. Response status code: {classes_response.status_code}"
+        for course_json in courses_json:
+            course_id = course_json.get("courseId")
+            class_ep = f"{uw_api_url}/ClassSchedules/{uw_term_code}/{course_id}"
+
+            class_response = requests.get(class_ep, headers=headers)
+
+            if class_response.status_code != 200:
+                subject_code = course_json.get("subjectCode")
+                catalog_number = course_json.get("catalogNumber")
+                logger.warning(
+                    f"Failed to fetch class data for {subject_code}{catalog_number}. Response status code: {class_response.status_code}"
                 )
                 continue
 
-            # List of classes
-            self.save_course(course)
-            classes_data = classes_response.json()
-            for class_data in classes_data:
-                self.save_class(class_data)
+            classes_json = class_response.json()
 
-    def save_course(self, course_data):
-        course = RawCourse(
-            course_id=course_data.get("courseId"),
-            subject_code=course_data.get("subjectCode"),
-            catalog_number=course_data.get("catalogNumber"),
-            title=course_data.get("title"),
-            course_component_code=course_data.get("courseComponentCode"),
-        )
-        course.save()
+            self.update_or_create_course(course_json, classes_json)
 
-    def save_class(self, class_data):
-        schedule_data = class_data.pop("scheduleData", [])
-
-        section, _ = RawClass.objects.get_or_create(
-            course_id=class_data["courseId"],
-            class_section=class_data["classSection"],
-            course_component=class_data["courseComponent"],
+    def update_or_create_course(self, course_json, classes_json):
+        course, course_created = Course.objects.get_or_create_or_update(
+            unique_fields={
+                "course_id": course_json.get("courseId"),
+                "term_code": course_json.get("termCode"),
+            },
+            data={
+                "associated_academic_career": course_json.get(
+                    "associatedAcademicCareer"
+                ),
+                "subject_code": course_json.get("subjectCode"),
+                "catalog_number": course_json.get("catalogNumber"),
+                "title": course_json.get("title"),
+                "description": course_json.get("description"),
+                "requirements_description": course_json.get("requirementsDescription"),
+            },
         )
 
-        if schedule_data:
-            for schedule in schedule_data:
-                print(schedule)
-                schedule_instance, _ = RawClassSchedule.objects.get_or_create(
-                    schedule_start_date = self._convert_to_datetime(
-                        schedule["scheduleStartDate"]
+        if course_created:
+            logger.info(
+                f"Created new course: {course.subject_code}{course.catalog_number}"
+            )
+        else:
+            logger.info(f"Updated course: {course.subject_code}{course.catalog_number}")
+
+        for class_json in classes_json:
+            schedules_json = class_json.get("scheduleData") or []
+
+            class_record, class_created = Class.objects.get_or_create_or_update(
+                unique_fields={
+                    "associated_course": course,
+                    "class_section": class_json.get("classSection"),
+                },
+                data={
+                    "course_component": class_json.get("courseComponent"),
+                },
+            )
+
+            if class_created:
+                logger.info(
+                    f"Created new class section: {class_record.class_section} for {course.subject_code}{course.catalog_number}"
+                )
+
+            schedule_records = []
+            for schedule_json in schedules_json:
+                schedule_record, _ = ClassSchedule.objects.get_or_create(
+                    associated_class=class_record,
+                    schedule_start_date=self._convert_to_datetime(
+                        schedule_json.get("scheduleStartDate")
                     ),
-                    schedule_end_date = self._convert_to_datetime(
-                        schedule["scheduleEndDate"]
+                    schedule_end_date=self._convert_to_datetime(
+                        schedule_json.get("scheduleEndDate")
                     ),
-                    class_section=schedule["classSection"],
                     class_meeting_start_time=self._convert_to_time(
-                        schedule["classMeetingStartTime"]
+                        schedule_json.get("classMeetingStartTime")
                     ),
                     class_meeting_end_time=self._convert_to_time(
-                        schedule["classMeetingEndTime"]
+                        schedule_json.get("classMeetingEndTime")
                     ),
-                    class_meeting_day_pattern_code=schedule[
+                    class_meeting_day_pattern_code=schedule_json.get(
                         "classMeetingDayPatternCode"
-                    ],
-                    class_meeting_week_pattern_code=schedule[
+                    ),
+                    class_meeting_week_pattern_code=schedule_json.get(
                         "classMeetingWeekPatternCode"
-                    ],
+                    ),
                 )
-                section.schedule_data.add(schedule_instance)
+                schedule_records.append(schedule_record)
 
-        section.save()
+            curr_schedule_records = list(class_record.schedule_data.all())
+
+            if set(curr_schedule_records) != set(schedule_records):
+                class_record.schedule_data.set(schedule_records)

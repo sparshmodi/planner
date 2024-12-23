@@ -1,4 +1,4 @@
-Django==5.0.9
+Django==5.0.10
 django-environ==0.11.2
 requests==2.32.3
 djangorestframework==3.15.2
@@ -6,3 +6,4 @@ environ==1.0
 django-cors-headers==4.3.1
 psycopg2-binary
 gunicorn
+graphene-django==3.2.2

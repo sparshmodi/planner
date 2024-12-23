@@ -1,28 +1,24 @@
 # compute_class_schedules.py
 
 from django.core.management.base import BaseCommand
-from scheduler.models import RawCourse, RawClass, CourseClassSchedules
+from scheduler.models import Course
 from scheduler.utils import classes_overlap
-from scheduler.serializers import CourseSerializer
 from itertools import groupby, product, combinations
 from typing import List
 
 
 class Command(BaseCommand):
     help = "Fetch data from database and computed its valid schedules"
-    CourseClassSchedules.delete_data()
 
     def handle(self, *args, **kwargs):
-        all_courses = CourseSerializer(RawCourse.objects, many=True).data
+        all_courses = Course.objects.all()
+
         for course in all_courses:
-            course_id = course["course_id"]
-            all_classes = RawClass.objects.filter(course_id__iexact=course_id)
+            all_classes = course.classes.all()
             valid_schedules = self.generate_valid_class_schedules(all_classes)
 
-            valid_class_schedules = CourseClassSchedules(
-                course_id=course_id, valid_schedules=valid_schedules
-            )
-            valid_class_schedules.save()
+            course.valid_schedules = valid_schedules
+            course.save()
 
     # Generates class schedules for a given single course
     def generate_valid_class_schedules(self, class_list):

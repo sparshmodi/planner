@@ -1,31 +1,36 @@
 # scheduler/serializers.py
 from rest_framework import serializers
-from .models import RawCourse, RawClass, RawClassSchedule
+from .models import Course, Class, ClassSchedule
 
 
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RawCourse
-        fields = ["course_id", "subject_code", "catalog_number"]
+        model = Course
+        fields = [
+            "course_id",
+            "subject_code",
+            "catalog_number",
+            "title",
+            "description",
+            "requirements_description",
+        ]
 
 
 class ClassSchedulesSerializer(serializers.Serializer):
     def to_representation(self, instance):
-        class RawClassScheduleSerializer(serializers.ModelSerializer):
+        class ClassScheduleSerializer(serializers.ModelSerializer):
             class Meta:
-                model = RawClassSchedule
+                model = ClassSchedule
                 exclude = ["id"]
 
-        class RawClassSerializer(serializers.ModelSerializer):
-            schedule_data = RawClassScheduleSerializer(many=True)
+        class ClassSerializer(serializers.ModelSerializer):
+            schedule_data = ClassScheduleSerializer(many=True)
 
             class Meta:
-                model = RawClass
+                model = Class
                 exclude = ["id"]
 
         return {
-            key: [
-                RawClassSerializer(instance=raw_instance).data for raw_instance in value
-            ]
+            key: [ClassSerializer(instance=raw_instance).data for raw_instance in value]
             for key, value in instance.items()
         }

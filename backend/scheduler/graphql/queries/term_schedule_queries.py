@@ -1,65 +1,64 @@
 from typing import Tuple, List, Dict
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from ..models import Class, Course, CoursesOverlap
-from ..serializers import ClassSchedulesSerializer
-from ..utils import classes_overlap
+from ..types import TermScheduleResponseType, ClassType
+from ...models import Course, Class, CoursesOverlap
+import graphene
+from ...utils import classes_overlap
 import re
+import logging
+
+logger = logging.getLogger("planner")
 
 
-class ClassScheduleView(APIView):
-    def get(self, request) -> Response:
-        course_ids: List[str] = request.GET.get("courses", "").split(",")[:6]
+class TermScheduleQueries(graphene.ObjectType):
+    term_schedules = graphene.List(
+        graphene.List(TermScheduleResponseType), courseIds=graphene.List(graphene.NonNull(graphene.String), required=True)
+    )
+
+    def resolve_term_schedules(self, info, courseIds):
+        course_ids: List[str] = courseIds[:6]
 
         # Sanitizing course ids parameter
         decimal_number_regex = re.compile(r"^\d+$")
         if any(not decimal_number_regex.match(course) for course in course_ids):
-            return Response(
-                {"error": "courses parameter should contain valid course IDs."},
-                status=status.HTTP_400_BAD_REQUEST,
+            raise ValueError(
+                {"error": "courses parameter should contain valid course IDs."}
             )
 
-        course_input = Course.objects.filter(course_ids=course_ids)
+        course_input = Course.objects.filter(course_id__in=course_ids)
         class_combinations_by_course: Dict[str, Course] = {
             course.course_id: course for course in course_input
         }
 
         if len(class_combinations_by_course) != len(course_ids):
-            return Response(
-                {"error": "courses parameter should contain valid course IDs."},
-                status=status.HTTP_400_BAD_REQUEST,
+            raise ValueError(
+                {"error": "courses parameter should contain valid course IDs."}
             )
 
         class_data_by_course: Dict[str, Dict[int, Class]] = {
             id: {
                 class_data.class_section: class_data
-                for class_data in Class.objects.filter(course_id__iexact=id)
+                for class_data in Class.objects.filter(associated_course__course_id=id)
             }
             for id in course_ids
         }
 
-        schedules: List[Dict[str, List[Class]]] = [
-            {
-                course_id: [
-                    class_data_by_course[course_id][section_id]
-                    for section_id in classes
-                ]
-                for course_id, classes in schedule.items()
-            }
-            for schedule in self.generate_valid_class_schedules(
-                class_combinations_by_course, class_data_by_course
-            )
-        ]
-
-        return Response(
-            ClassSchedulesSerializer(schedules, many=True).data,
-            status=status.HTTP_200_OK,
+        term_schedules = TermScheduleQueries.generate_valid_class_schedules(
+            class_combinations_by_course, class_data_by_course
         )
 
+        parsed_term_schedules = [
+            [
+                TermScheduleResponseType(course_id=key, classes=val)
+                for key, val in term_schedule.items()
+            ]
+            for term_schedule in term_schedules
+        ]
+
+        return parsed_term_schedules
+
     # Generates class schedules for a given courses
+    @staticmethod
     def generate_valid_class_schedules(
-        self,
         class_combinations_by_course: Dict[str, Course],
         class_data_by_course: Dict[str, Dict[int, Class]],
     ) -> List[Dict[str, List[int]]]:
@@ -83,7 +82,7 @@ class ClassScheduleView(APIView):
                     current_course_id
                 ].valid_schedules  # current_course_classes: [section_id ... ]
                 if all(
-                    not self.courses_overlap(
+                    not TermScheduleQueries.courses_overlap(
                         existing_schedule_entry,
                         (current_course_id, current_course_classes),
                         class_data_by_course,
@@ -94,8 +93,8 @@ class ClassScheduleView(APIView):
 
         return dp
 
+    @staticmethod
     def courses_overlap(
-        self,
         course1_schedule: Tuple[int, List[int]],
         course2_schedule: Tuple[int, List[int]],
         class_data_by_course: Dict[str, Dict[int, Class]],

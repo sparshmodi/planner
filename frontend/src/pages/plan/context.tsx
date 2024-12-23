@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState } from 'react'
-import { Course } from '@/types'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { CookieCourse } from '@/types'
 
 interface CoursesContextType {
-    selectedCourses: Course[]
-    setSelectedCourses: React.Dispatch<React.SetStateAction<Course[]>>
+	addedCourses: CookieCourse[]
+	setAddedCourses: React.Dispatch<React.SetStateAction<CookieCourse[]>>
 }
 
 interface CoursesProviderProps {
@@ -13,21 +13,39 @@ interface CoursesProviderProps {
 const CoursesContext = createContext<CoursesContextType | undefined>(undefined)
 
 export const useCoursesContext = () => {
-  const context = useContext(CoursesContext)
-  if (!context) {
-    throw new Error('useCoursesContext must be used within a MyProvider')
-  }
-  return context
+	const context = useContext(CoursesContext)
+	if (!context) {
+		throw new Error('useCoursesContext must be used within a MyProvider')
+	}
+	return context
 }
 
 const CoursesProvider: React.FC<CoursesProviderProps> = ({ children }) => {
-  const [selectedCourses, setSelectedCourses] = useState<Course[]>([])
+	const [addedCourses, setAddedCourses] = useState<CookieCourse[]>([])
 
-  return (
-    <CoursesContext.Provider value={{ selectedCourses, setSelectedCourses}}>
-      {children}
-    </CoursesContext.Provider>
-  )
+	useEffect(() => {
+		const storedAddedCourses = document.cookie
+			.split('; ')
+			.find(row => row.startsWith('addedCourses='))
+			?.split('=')[1]
+
+		if (storedAddedCourses) {
+			setAddedCourses(JSON.parse(decodeURIComponent(storedAddedCourses)))
+		}
+	}, [])
+	
+	useEffect(() => {
+		const days = 7
+		const expires = `expires=${new Date(Date.now() + days * 864e5).toUTCString()}`
+
+		document.cookie = `addedCourses=${encodeURIComponent(JSON.stringify(addedCourses))}; ${expires}; path=/`
+	}, [addedCourses])
+
+	return (
+		<CoursesContext.Provider value={{ addedCourses, setAddedCourses }}>
+			{children}
+		</CoursesContext.Provider>
+	)
 }
 
 export default CoursesProvider

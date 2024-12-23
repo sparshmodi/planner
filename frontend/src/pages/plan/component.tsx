@@ -1,118 +1,303 @@
-import React, { useState } from "react"
-import { GetServerSideProps } from "next"
-import axios from 'axios'
-import { Button, Container, Typography } from "@mui/material"
-import AutoComplete from "@/components/autocomplete"
-import ScrollableHorizontalView from "@/components/calendar"
-import { find, selectCourses, noResults, numberOfCourses, DJANGO_BACKEND_URL, FRONTEND_SCHEDULE_EP, BACKEND_COURSE_LIST_EP } from "@/constants"
-import { Course, Schedule } from "@/types"
-import { snakeToCamel } from "@/utils"
-import { useCoursesContext } from "./context"
+import DeleteIcon from '@mui/icons-material/Delete'
+import { Button, Container, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material'
+import { Box } from '@mui/material'
+import { DateTime } from 'luxon'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
+import ScrollableHorizontalView from '@/components/calendar'
+import SearchBar from '@/components/searchbar'
+import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules } from '@/constants'
+import { createApolloClient } from '@/graphql/apolloClient'
+import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
+import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
+import { CookieCourse, Course, TermScheduleData } from '@/types'
+import { useCoursesContext } from './context'
 
 interface PlanPageProps {
-    coursesData: Course[] | null
-    error?: string
+	availableCourses: Course[]
+	selectedCourse?: Course
+	termSchedules?: TermScheduleData
 }
 
-const PlanPage: React.FC<PlanPageProps> = ({ coursesData, error}) => {
-    const { selectedCourses } = useCoursesContext()
-    const [schedules, setSchedules] = useState<Schedule[]>([])
-    const [ errorMessage, setErrorMessage] = useState('')
+interface CourseScheduleDateProps {
+	scheduleStartDate?: string
+	scheduleEndDate?: string
+	weekPattern?: string
+}
 
-    if (error || coursesData === null || coursesData == undefined) {
-        return (
-            <Container 
-                className="flex flex-col items-center justify-center min-h-screen"
-            >
-                Error: {error}
-            </Container>
-        )
-    }
+const CourseScheduleDate: React.FC<CourseScheduleDateProps> = ({scheduleStartDate, scheduleEndDate, weekPattern}) => {
+	const startDate = scheduleStartDate && DateTime.fromFormat(scheduleStartDate, 'yyyy-MM-dd').toFormat('LLL d')
+	const endDate = scheduleEndDate && DateTime.fromFormat(scheduleEndDate, 'yyyy-MM-dd').toFormat('LLL d')
+	const date = (startDate === endDate) ? startDate : startDate + ' - ' + endDate
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+	return (
+		<>
+			{weekPattern && daysOfWeek.map((day, index) => (
+				<span key={index} className={weekPattern[index] === 'Y' ? 'font-bold' : 'text-gray-400'}>{day}</span>
+			))}
+			<span>{startDate ? ' (' + date + ')': ''}</span>
+		</>
+	) 
+}
 
-        const courseQuery = selectedCourses.map(course => course.courseId).join(',')
-        try {
-            const response = await axios.get(FRONTEND_SCHEDULE_EP, {
-                withCredentials: true,
-		        params: {
-                    courses: courseQuery
-                }
-            })
-            const result = await response.data
-            
-            if (result.length === 0) {
-                handleError(noResults)
-                return
-            }
+const CourseContainer: React.FC<{course: Course}> = ({course}) => {
+	const listItemClassName = 'flex bg-white/80 rounded-sm border border-gray-400'
+	const listItemTextClassName = 'flex-1'
+	const listItemPrimaryTypographyProps = {fontWeight: 'bold'}
 
-            setSchedules(result)
-        } catch (e: any) {
-            console.error(e)
-            handleError(e.message)
-        }
-    }
+	const classes = course.classes
 
-    const handleError = (error: string) => {
-        setErrorMessage(error)
-        setTimeout(() => {
-            setErrorMessage('')
-        }, 5000)
-    }
+	const { addedCourses, setAddedCourses } = useCoursesContext()
+	const hasSelectedCourse = addedCourses.some(c => c.courseId === course.courseId)
+	const isButtonDisabled = !hasSelectedCourse && addedCourses.length >= 6
 
-    return (
-        <Container className="flex items-center justify-center w-full mt-32 gap-4">
-            <Container className="flex w-1/3 flex-col items-center gap-4">
-                <Typography variant="h5" className="mb-4 text-center" >{selectCourses}</Typography>
-                <form onSubmit={handleSubmit} className="flex flex-col space-y-4 items-center">
-                   {Array
-                        .from({ length: numberOfCourses })
-                        .map((_, index) => (
-                            <AutoComplete key={index} availableCourses={coursesData} />
-                        ))
-                    }
-                    <Button 
-                        disabled={selectedCourses.length === 0} 
-                        type='submit' 
-                        variant="outlined"
-                    >
-                        {find}
-                    </Button>
-                </form>
-                {errorMessage &&
+	return (
+		<>
+			<Box className='flex justify-between'> 
+				<Typography variant='h3'>{course.subjectCode} {course.catalogNumber}</Typography>
+				<Button 
+					variant='contained'
+					color={hasSelectedCourse ? 'error' : 'primary'}
+					sx={{ // fix this later
+						...(!isButtonDisabled && {
+							backgroundColor: `${hasSelectedCourse ? '#D32F2F' : '#0A66C2'} !important`,
+						})
+					}}
+					disabled={isButtonDisabled}
+					onClick={() => {
+						if (hasSelectedCourse) {
+							setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
+						} else {
+							setAddedCourses([...addedCourses, {
+								courseId: course.courseId,
+								subjectCode: course.subjectCode,
+								catalogNumber: course.catalogNumber
+							}])
+						}
+					}}
+				>
+					<Typography>
+						{hasSelectedCourse ? removeCourseFromPlan : addCourseToPlan}
+					</Typography>
+				</Button>
+			</Box>
+			
+			<Typography variant='h5' className='pt-2 pb-6'>{course.title}</Typography>
+			<Typography variant='body1'>{course.description}</Typography>
+			{classes && 
+			<Container>
+				<Typography variant='h5' className='pt-8 pb-2'>Course Schedule</Typography>
+				<List>
+					<ListItem className={listItemClassName}>
+						<ListItemText primary="Section" className={listItemTextClassName} primaryTypographyProps={listItemPrimaryTypographyProps}/>
+						<ListItemText primary="Time" className={listItemTextClassName} primaryTypographyProps={listItemPrimaryTypographyProps}/>
+						<ListItemText primary="Date" className={listItemTextClassName} primaryTypographyProps={listItemPrimaryTypographyProps}/>
+					</ListItem>
+					{classes
+						.sort((a, b) => a.classSection - b.classSection)
+						.map((courseClass, index) => {
+							const section = courseClass.courseComponent + ' ' + courseClass.classSection
+
+							const startTime = courseClass.scheduleData?.at(0)?.classMeetingStartTime
+							const parsedStartTime = startTime && DateTime.fromFormat(startTime, 'HH:mm:ss').toFormat('h:mm a')
+
+							const endTime = courseClass.scheduleData?.at(0)?.classMeetingEndTime
+							const parsedEndTime = endTime && DateTime.fromFormat(endTime, 'HH:mm:ss').toFormat('h:mm a')
+
+							const startDate = courseClass.scheduleData?.at(0)?.scheduleStartDate
+							const endDate = courseClass.scheduleData?.at(0)?.scheduleEndDate
+							const weekPattern = courseClass.scheduleData?.at(0)?.classMeetingWeekPatternCode
+
+							return (<ListItem key={index} className={listItemClassName}>
+								<ListItemText primary={section} className={listItemTextClassName} />
+								<ListItemText primary={parsedStartTime && parsedEndTime ? parsedStartTime + ' - ' + parsedEndTime : ''} className={listItemTextClassName} />
+								<ListItemText primary={<CourseScheduleDate scheduleStartDate={startDate} scheduleEndDate={endDate} weekPattern={weekPattern!}/>} className={listItemTextClassName} />
+							</ListItem>)
+						})}
+				</List>
+			</Container>}
+		</>
+	)
+}
+
+const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, termSchedules }) => {
+	const { addedCourses, setAddedCourses } = useCoursesContext()
+	const [ errorMessage, setErrorMessage] = useState('')
+	const router = useRouter()
+
+	const handleClick = async () => {
+		router.push('/plan/schedule')
+	}
+
+	const handleError = (error: string) => {
+		setErrorMessage(error)
+		setTimeout(() => {
+			setErrorMessage('')
+		}, 5000)
+	}
+
+	return (
+		<Container
+			disableGutters
+			maxWidth={false}
+			className="h-full absolute flex flex-row justify-center items-center px-8 md:px-0"
+			sx={{
+				backgroundImage: "url('/mountain.webp')",
+				backgroundSize: 'cover',
+				backgroundPosition: 'center',
+				backgroundRepeat: 'no-repeat',
+			}}
+		>
+			<Box
+				className='bg-white/50 rounded-lg p-8 my-8 ml-8 mr-4 shadow-md flex flex-col'
+				sx={{height: '80%', width: '25%'}}
+			>
+				<SearchBar courses={availableCourses}/>
+				<Container className='mt-8 pl-0'>
+					<Typography variant="h5" >Added Courses</Typography>
+					<List>
+						{!addedCourses.length ? 
+							<ListItem className='py-1'>
+								<ListItemText 
+									primary={'No courses added yet'} 
+									primaryTypographyProps={{variant: 'body2', fontStyle: 'italic'}}
+								/>
+							</ListItem>
+						 : addedCourses
+								.sort((a, b) => a.subjectCode.localeCompare(b.subjectCode) || a.catalogNumber.localeCompare(b.catalogNumber))
+								.map(course => (
+									<ListItem 
+										key={course.courseId}
+										className='py-1'
+										secondaryAction={
+											<IconButton 
+												edge='end' 
+												size='small'
+												onClick={() => {
+													setAddedCourses(addedCourses.filter(c => c.courseId !== course.courseId))
+												}}
+											>
+												<DeleteIcon />
+											</IconButton>
+										}
+									>
+										<ListItemText primary={`${course.subjectCode} ${course.catalogNumber}`} />
+									</ListItem>
+								))}
+					</List>
+				</Container>
+				<Container className='mt-8 pl-0'>
+					<Typography variant="h5" >Filters</Typography>
+					<Typography variant="body2" className='pl-4 pt-1 italic'>Coming soon...</Typography>
+				</Container>
+				{errorMessage &&
                     <Typography 
-                        variant="h6" 
-                        className="text-red-500 text-center"
+                    	variant="h6" 
+                    	className="text-red-500 text-center"
                     >
-                        {errorMessage}
+                    	{errorMessage}
                     </Typography>
-                }
-            </Container>
-            {schedules.length > 0 && 
-                <Container >
-                    <ScrollableHorizontalView 
-                        schedules={schedules} 
-                        availableCourses={coursesData}/>
-                </Container>
-            }
-        </Container>
-    )
+				}
+				<Button 
+					disabled={addedCourses.length === 0}  
+					variant='contained'
+					color='primary'
+					className='mt-10'
+					sx={{
+						backgroundColor: '#0A66C2 !important',     
+						opacity: 0.8,
+					}}
+					onClick={handleClick}
+				>
+					{findTermSchedules}
+				</Button>
+			</Box>
+			<Box 
+				className='bg-white/50 rounded-lg p-8 my-8 ml-4 mr-8 shadow-md overflow-y-scroll'
+				sx={{ height: '80%', width: '75%'}}
+			>
+				{selectedCourse && 
+					<CourseContainer course={selectedCourse} />
+				}
+				{termSchedules &&
+					<ScrollableHorizontalView termScheduleData={termSchedules} />
+				}
+			</Box>
+		</Container>
+	)
 }
 
-export const getServerSideProps: GetServerSideProps<PlanPageProps> = async () => {
-    try {
-        const courseListUrl = DJANGO_BACKEND_URL + BACKEND_COURSE_LIST_EP
-        const response = await axios.get(courseListUrl)
-        const result: Course[] = await snakeToCamel(response.data)
-        const sortedResults: Course[] = result.sort((a, b) =>
-            a.subjectCode.localeCompare(b.subjectCode) ||
+export const getServerSideProps: GetServerSideProps<PlanPageProps> = async (context) => {
+	const { slug } = context.query as { slug: string }
+	const client = createApolloClient()
+
+	const availableCoursesPromise = client.query({
+		query: GET_UNDERGRADUATE_COURSES
+	})
+
+	try {
+		if (slug === 'schedule') {
+			const cookies = context.req.headers.cookie || ''
+			const storedAddedCourses = cookies
+				.split('; ')
+				.find(row => row.startsWith('addedCourses='))
+				?.split('=')[1]
+			
+			if (!storedAddedCourses) {
+				return { notFound: true }
+			}
+
+			const [ termSchedulesResponse, availableCoursesResponse ] = await Promise.all([
+				client.query({
+					query: GET_TERM_SCHEDULES,
+					variables: {
+						courseIds: JSON.parse(decodeURIComponent(storedAddedCourses)).map((course: CookieCourse) => course.courseId)
+					}
+				}),
+				availableCoursesPromise
+			])
+
+			if (!termSchedulesResponse.data.termSchedules || !termSchedulesResponse.data.courses) {
+				return { notFound: true }
+			}
+
+			const sortedResults: Course[] = [...availableCoursesResponse.data.courses].sort((a, b) =>
+				a.subjectCode.localeCompare(b.subjectCode) ||
+				a.catalogNumber.localeCompare(b.catalogNumber)
+			)
+			return { props: { availableCourses: sortedResults, termSchedules: termSchedulesResponse.data } }
+		}
+		const course = slug.match(/(.*?)(\d.*)/)?.slice(1) 
+
+		if (!course) {
+			return { notFound: true }
+		}
+
+		const [ courseResponse, availableCoursesResponse ] = await Promise.all([
+			client.query({
+				query: GET_COURSE,
+				variables: { 
+					subjectCode: course[0],
+					catalogNumber: course[1]
+				}
+			}),
+			availableCoursesPromise
+		])
+
+		if (!courseResponse.data.course) {
+			return { notFound: true }
+		}
+
+		const sortedResults: Course[] = [...availableCoursesResponse.data.courses].sort((a, b) =>
+			a.subjectCode.localeCompare(b.subjectCode) ||
             a.catalogNumber.localeCompare(b.catalogNumber)
-        )
-        return { props: { coursesData: sortedResults}}
-    } catch (e: any) {
-        return { props: { coursesData: null, error: `Failed to load data. ${e.message}` } }
-    }
+		)
+
+		return { props: { selectedCourse: courseResponse.data.course, availableCourses: sortedResults}}
+	} catch (e) {
+		return { notFound: true }
+	}
 }
 
 export default PlanPage

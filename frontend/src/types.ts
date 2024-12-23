@@ -3,7 +3,16 @@ export interface Course {
     subjectCode: string
     catalogNumber: string
     title: string
+    description: string | null
+    classes?: UwaterlooSection[]
 }
+
+export interface CookieCourse {
+    courseId: string
+    subjectCode: string
+    catalogNumber: string
+}
+
 export interface UwaterlooClassSchedule {
     classSection: number
     scheduleStartDate: string // $date-time
@@ -21,4 +30,12 @@ export interface UwaterlooSection {
     scheduleData: UwaterlooClassSchedule[] | null
 }
 
-export type Schedule = {[courseId: string]: UwaterlooSection[]}
+export type Schedule = {
+    courseId: string
+    classes: number[]
+}[]
+
+export type TermScheduleData = {
+    termSchedules: Schedule[]
+    courses: Course[]
+}

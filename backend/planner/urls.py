@@ -14,12 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+
 from django.urls import path
 from scheduler.views import CourseListView, ClassScheduleView
+from graphene_django.views import GraphQLView
+from scheduler.schema import schema
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('course-list', CourseListView.as_view(), name='course-list'),
-    path('class-schedule', ClassScheduleView.as_view(), name='class-schedule'),
+    path("course-list", CourseListView.as_view(), name="course-list"),
+    path("class-schedule", ClassScheduleView.as_view(), name="class-schedule"),
+    path("graphql", GraphQLView.as_view(graphiql=True, schema=schema)),
 ]
