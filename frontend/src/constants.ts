@@ -35,3 +35,4 @@ export const goBackToHome = 'Go back to Home'
 export const daysOfWeek = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']
 export const addCourseToPlan = 'Add course to plan'
 export const removeCourseFromPlan = 'Remove course from plan'
+export const uwPlan = 'UW Plan'
