@@ -11,7 +11,7 @@ import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules, f
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
-import { CookieCourse, Course, TermScheduleData } from '@/types'
+import { CookieCourse, Course, TermScheduleData, UwaterlooClassSchedule } from '@/types'
 import { getCourseName } from '@/utils'
 import { useCoursesContext } from './context'
 
@@ -21,25 +21,62 @@ interface PlanPageProps {
 	termSchedules?: TermScheduleData
 }
 
-interface CourseScheduleDateProps {
-	scheduleStartDate?: string
-	scheduleEndDate?: string
-	weekPattern?: string
+const CourseScheduleTime: React.FC<{scheduleData: UwaterlooClassSchedule[] | null}> = ({ scheduleData }) => {
+	const formatTime = (time?: string) =>
+	  time ? DateTime.fromFormat(time, 'HH:mm:ss').toFormat('h:mm a') : ''
+  
+	return (
+	  <>
+			{scheduleData?.map((schedule, idx) => {
+				const { classMeetingStartTime, classMeetingEndTime } = schedule
+				const startTime = formatTime(classMeetingStartTime)
+				const endTime = formatTime(classMeetingEndTime)
+				const timeRange = (startTime && endTime) ? startTime + ' - ' + endTime : ''
+			
+				return (
+					<>
+						{idx > 0 && <br />}
+						<span>{timeRange}</span>
+					</>
+				)
+			})}
+	  </>
+	)
 }
 
-const CourseScheduleDate: React.FC<CourseScheduleDateProps> = ({scheduleStartDate, scheduleEndDate, weekPattern}) => {
-	const startDate = scheduleStartDate && DateTime.fromFormat(scheduleStartDate, 'yyyy-MM-dd').toFormat('LLL d')
-	const endDate = scheduleEndDate && DateTime.fromFormat(scheduleEndDate, 'yyyy-MM-dd').toFormat('LLL d')
-	const date = (startDate === endDate) ? startDate : startDate + ' - ' + endDate
 
+const CourseScheduleDate: React.FC<{scheduleData: UwaterlooClassSchedule[] | null}> = ({ scheduleData }) => {
+	const formatDate = (date?: string) =>
+	  date ? DateTime.fromFormat(date, 'yyyy-MM-dd').toFormat('LLL d') : ''
+  
+	const renderDays = (classMeetingWeekPatternCode?: string) =>
+		daysOfWeek.map((day, index) => (
+			<span
+				key={day}
+				className={classMeetingWeekPatternCode?.[index] === 'Y' ? 'font-bold' : 'text-gray-400'}
+			>
+				{day}
+			</span>
+		))
+  
 	return (
-		<>
-			{weekPattern && daysOfWeek.map((day, index) => (
-				<span key={index} className={weekPattern[index] === 'Y' ? 'font-bold' : 'text-gray-400'}>{day}</span>
-			))}
-			<span>{startDate ? ' (' + date + ')': ''}</span>
-		</>
-	) 
+	  <>
+			{scheduleData?.map((schedule, idx) => {
+				const { scheduleStartDate, scheduleEndDate, classMeetingWeekPatternCode } = schedule
+				const startDate = formatDate(scheduleStartDate)
+				const endDate = formatDate(scheduleEndDate)
+				const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`
+		
+				return (
+					<>
+						{idx > 0 && <br />}
+						{classMeetingWeekPatternCode && renderDays(classMeetingWeekPatternCode)}
+						{startDate && <span> ({dateRange})</span>}
+					</>
+				)
+			})}
+	  </>
+	)
 }
 
 const CourseContainer: React.FC<{course: Course}> = ({course}) => {
@@ -100,20 +137,10 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 						.map((courseClass, index) => {
 							const section = courseClass.courseComponent + ' ' + courseClass.classSection
 
-							const startTime = courseClass.scheduleData?.at(0)?.classMeetingStartTime
-							const parsedStartTime = startTime && DateTime.fromFormat(startTime, 'HH:mm:ss').toFormat('h:mm a')
-
-							const endTime = courseClass.scheduleData?.at(0)?.classMeetingEndTime
-							const parsedEndTime = endTime && DateTime.fromFormat(endTime, 'HH:mm:ss').toFormat('h:mm a')
-
-							const startDate = courseClass.scheduleData?.at(0)?.scheduleStartDate
-							const endDate = courseClass.scheduleData?.at(0)?.scheduleEndDate
-							const weekPattern = courseClass.scheduleData?.at(0)?.classMeetingWeekPatternCode
-
 							return (<ListItem key={index} className={listItemClassName}>
 								<ListItemText primary={section} className={listItemTextClassName} />
-								<ListItemText primary={parsedStartTime && parsedEndTime ? parsedStartTime + ' - ' + parsedEndTime : ''} className={listItemTextClassName} />
-								<ListItemText primary={<CourseScheduleDate scheduleStartDate={startDate} scheduleEndDate={endDate} weekPattern={weekPattern!}/>} className={listItemTextClassName} />
+								<ListItemText primary={<CourseScheduleTime scheduleData={courseClass.scheduleData}/>} className={listItemTextClassName} />
+								<ListItemText primary={<CourseScheduleDate scheduleData={courseClass.scheduleData}/>} className={listItemTextClassName} />
 							</ListItem>)
 						})}
 				</List>
