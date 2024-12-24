@@ -10,6 +10,8 @@ const Footer: React.FC = () => {
 			<IconButton
 				color="inherit"
 				href="https://github.com/sparshmodi/planner"
+				target="_blank"
+				rel="noopener noreferrer"
 			>
 				<GitHubIcon />
 			</IconButton>
