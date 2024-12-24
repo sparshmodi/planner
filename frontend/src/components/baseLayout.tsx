@@ -30,6 +30,12 @@ const BaseLayout: React.FC<{children: ReactNode }> = ({children}) => {
 				disableGutters
 				maxWidth={false}
 				className="flex flex-col min-h-screen w-full mx-0"
+				sx={{
+					backgroundImage: "url('/mountain.webp')",
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
+				}}
 			>
 				{pathname !== NOT_FOUND_URL && <Header />}
 				<Container 

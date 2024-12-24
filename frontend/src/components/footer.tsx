@@ -5,7 +5,7 @@ import React from 'react'
 const Footer: React.FC = () => {
 	return (
 		<Box 
-			className="flex justify-end mt-10 pt-4 pr-12 border-t"
+			className="flex justify-end mt-10 pt-4 pr-12"
 		>
 			<IconButton
 				color="inherit"

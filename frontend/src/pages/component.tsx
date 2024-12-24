@@ -15,15 +15,7 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ coursesData, error}) => {
 	return (
 		<Container 
-			disableGutters
-			maxWidth={false}
-			className="h-full absolute flex flex-row md:justify-end items-center pb-20 px-8 md:px-0"
-			sx={{
-				backgroundImage: "url('/mountain.webp')",
-				backgroundSize: 'cover',
-				backgroundPosition: 'center',
-				backgroundRepeat: 'no-repeat',
-			}}
+			className="h-full max-w-full absolute flex flex-row md:justify-end items-center pb-20 px-8 md:px-0"
 		>
 			<Stack 
 				spacing={1}

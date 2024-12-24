@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import React from 'react'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
-import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules, filters, comingSoon } from '@/constants'
+import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules, filters, comingSoon, PLAN_URL } from '@/constants'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
@@ -126,20 +126,12 @@ const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, t
 	const router = useRouter()
 
 	const handleClick = async () => {
-		router.push('/plan/schedule')
+		router.push(`${PLAN_URL}/schedule`)
 	}
 
 	return (
 		<Container
-			disableGutters
-			maxWidth={false}
-			className="h-full absolute flex flex-row justify-center items-center px-8 md:px-0"
-			sx={{
-				backgroundImage: "url('/mountain.webp')",
-				backgroundSize: 'cover',
-				backgroundPosition: 'center',
-				backgroundRepeat: 'no-repeat',
-			}}
+			className="h-full max-w-full absolute flex flex-row justify-center items-center px-8 md:px-0"
 		>
 			<Box
 				className='bg-white/50 rounded-lg p-8 my-8 ml-8 mr-4 shadow-md flex flex-col'

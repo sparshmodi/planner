@@ -15,15 +15,7 @@ const Profile: React.FC = () => {
 
 	return (
 		<Container
-			disableGutters
-			maxWidth={false}
-			className="h-full absolute flex flex-row justify-center items-center px-8 md:px-0"
-			sx={{
-				backgroundImage: "url('/mountain.webp')",
-				backgroundSize: 'cover',
-				backgroundPosition: 'center',
-				backgroundRepeat: 'no-repeat',
-			}}
+			className="h-full max-w-full absolute flex flex-row justify-center items-center px-8 md:px-0"
 		>
 			<Container
 				maxWidth="xs"
