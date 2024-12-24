@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client'
-import { DJANGO_BACKEND_URL, GRAPHQL_EP } from '../constants'
+import { DJANGO_BACKEND_URL, GRAPHQL_EP } from '@/constants'
 
 export const createApolloClient = () => {
 	return  new ApolloClient({

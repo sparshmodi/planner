@@ -2,6 +2,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+import { noOptions, PLAN_URL, searchForCourses } from '@/constants'
 import { Course } from '@/types'
 
 interface SearchBarProps {
@@ -43,7 +44,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 		<InputLabel
 			className={`ml-6 ${inputValue ? 'hidden' : 'flex'}`}
 		>
-          Search for courses
+			{searchForCourses}
 		</InputLabel>
 		<Autocomplete
 			options={filteredOptions}
@@ -60,7 +61,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 						setOpen(false)
 					}}
 				>
-					<Link href={`/plan/${course.subjectCode}${course.catalogNumber}`} >
+					<Link href={`${PLAN_URL}/${course.subjectCode}${course.catalogNumber}`} >
 						<ListItemText
 							primary={
 								<>
@@ -87,7 +88,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 				/>
 			)}
 			open={open}
-			noOptionsText="No options"
+			noOptionsText={noOptions}
 		/>
 	</FormControl>
 	)

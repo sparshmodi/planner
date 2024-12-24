@@ -2,6 +2,7 @@ import { Container, Typography } from '@mui/material'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import React from 'react'
+import { profile, name as nameTitle, email as emailTitle } from '@/constants'
 
 const Profile: React.FC = () => {
 	const { data } = useSession() 
@@ -29,7 +30,7 @@ const Profile: React.FC = () => {
 				className="bg-white/70 rounded-lg shadow-lg p-8 h-3/5 flex flex-col items-center"
 			>
 				<Typography variant="h3" className="text-center">
-					Profile
+					{profile}
 				</Typography>
 
 				{image && 
@@ -37,7 +38,7 @@ const Profile: React.FC = () => {
 
 				{name && <>
 					<Typography variant="body1" className="font-semibold">
-					Name
+						{nameTitle}
 					</Typography>
 
 					<Typography variant="body1" className="mb-4">
@@ -48,7 +49,7 @@ const Profile: React.FC = () => {
 
 				{email && <>
 					<Typography variant="body1" className="font-semibold">
-					Email
+						{emailTitle}
 					</Typography>
 
 					<Typography variant="body1" className="mb-4">

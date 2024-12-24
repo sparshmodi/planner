@@ -10,7 +10,7 @@ export const snakeToCamel = (obj: any): any => {
 	}
 
 	return Object.keys(obj).reduce((acc, key) => {
-		const camelKey = key.replace(/_([a-z])/g, (match, char) => char.toUpperCase())
+		const camelKey = key.replace(/_([a-z])/g, (_, char) => char.toUpperCase())
 		acc[camelKey] = snakeToCamel(obj[key])
 		return acc
 	}, {} as any)

@@ -8,7 +8,7 @@ import { SessionProvider, useSession } from 'next-auth/react'
 import React, { PropsWithChildren } from 'react'
 import BaseLayout from '@/components/baseLayout'
 import LoadingState from '@/components/loading'
-import { AuthenticationStatus } from '@/constants'
+import { AuthenticationStatus, uwPlan } from '@/constants'
 import client from '@/graphql/apolloClient'
 import CoursesProvider from './plan/context'
 import getDarkTheme from './theme'
@@ -22,7 +22,7 @@ export default function App({
 	return (
 		<>
 			<Head>
-				<title>UW Plan</title>
+				<title>{uwPlan}</title>
 				<link rel="icon" href="/icon.png"  />
 			</Head>
 			<GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''}/>

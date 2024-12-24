@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import React from 'react'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
-import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules } from '@/constants'
+import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules, filters, comingSoon } from '@/constants'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
@@ -180,8 +180,8 @@ const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, t
 					</List>
 				</Container>
 				<Container className='mt-8 pl-0'>
-					<Typography variant="h5" >Filters</Typography>
-					<Typography variant="body2" className='pl-4 pt-1 italic'>Coming soon...</Typography>
+					<Typography variant="h5" >{filters}</Typography>
+					<Typography variant="body2" className='pl-4 pt-1 italic'>{comingSoon}</Typography>
 				</Container>
 				<Button 
 					disabled={addedCourses.length === 0}  

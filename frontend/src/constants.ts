@@ -6,28 +6,21 @@ export enum AuthenticationStatus {
 
 // URLs and EPs
 // (FrontEnd)
-export const FRONTEND_SCHEDULE_EP = '/api/class-schedule'
+export const HOME_URL = '/'
+export const PROFILE_URL = '/profile'
+export const PLAN_URL = '/plan'
+export const NOT_FOUND_URL = '/404'
 
 // (BackEnd)
 export const DJANGO_BACKEND_URL = 'http://backend:8000'
-export const BACKEND_SCHEDULE_EP = '/class-schedule'
-export const BACKEND_COURSE_LIST_EP = '/course-list'
 export const GRAPHQL_EP = '/graphql'
 
-// Number of courses in autocomplete
-export const numberOfCourses = 5
-
 // Strings
-export const plan = 'Plan'
 export const profile = 'Profile'
-export const uw = 'UW'
 export const tagline = 'Plan your term'
 export const signInText = 'Sign in To Save'
-export const signUp = 'Sign up'
 export const signOutText = 'Sign out'
-export const planYourTerm = 'Plan your term'
-export const selectCourses = 'Select courses to plan'
-export const noResults = 'Sorry! Could not find any schedules for given courses. Try searching for different courses.'
+export const noResults = 'Sorry! Could not find any schedules for given courses. Try searching for different courses.' // not used
 export const findTermSchedules = 'Find term schedules'
 export const notFoundTitle = '404 - Page Not Found'
 export const notFoundDescription = "Oops! The page you're looking for doesn't exist."
@@ -36,3 +29,12 @@ export const daysOfWeek = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']
 export const addCourseToPlan = 'Add course to plan'
 export const removeCourseFromPlan = 'Remove course from plan'
 export const uwPlan = 'UW Plan'
+export const previousSchedule = 'Previous Schedule'
+export const nextSchedule = 'Next Schedule'
+export const schedule = 'Schedule'
+export const searchForCourses = 'Search for courses'
+export const noOptions = 'No options'
+export const filters = 'Filters'
+export const comingSoon = 'Coming soon...'
+export const name = 'Name'
+export const email = 'Email'

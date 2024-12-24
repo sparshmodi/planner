@@ -5,7 +5,7 @@ import SearchBar from '@/components/searchbar'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { Course } from '@/types'
-import { uw, plan, tagline } from '../constants'
+import { tagline, uwPlan } from '../constants'
 
 interface LandingPageProps {
     coursesData: Course[] | null
@@ -31,7 +31,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ coursesData, error}) => {
 				className='w-full md:w-5/12 md:pr-48 justify-start'
 			>
 				<Typography variant="h1">
-					{uw}&nbsp;{plan}
+					{uwPlan}
 				</Typography>
 				<Typography
 					variant='h6'

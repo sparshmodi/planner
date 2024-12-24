@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import React from 'react'
-import { AuthenticationStatus, profile, signInText, signOutText } from '@/constants'
+import { AuthenticationStatus, HOME_URL, profile, PROFILE_URL, signInText, signOutText } from '@/constants'
 import { MenuItemButton, AuthenticationButton } from './button'
 
 const Header: React.FC = () => {
@@ -26,9 +26,9 @@ const Header: React.FC = () => {
                     "
 				>
 					{ status === AuthenticationStatus.Authenticated && 
-						(pathname !== '/profile' ? 
-							<MenuItemButton href="/profile" text={profile} /> :
-							<Link href={'/'}>
+						(pathname !== PROFILE_URL ? 
+							<MenuItemButton href={PROFILE_URL} text={profile} /> :
+							<Link href={HOME_URL}>
 								<Image src="/icon.png" alt="logo" width={30} height={30} />
 							</Link>
 						)}

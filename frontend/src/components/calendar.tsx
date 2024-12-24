@@ -5,6 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import { Button, Container, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 import React, { useState } from 'react'
+import { nextSchedule, previousSchedule, schedule } from '@/constants'
 import { Course, Schedule, TermScheduleData } from '@/types'
 import { getCourseName } from '@/utils'
 
@@ -91,9 +92,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ termScheduleData 
 	return (
 		<Container className="flex flex-col gap-2" >
 			<Container className="flex items-center justify-between py-1">
-				<Button variant="outlined" disabled={currentIndex === 0} onClick={handlePrev}>Previous Schedule</Button>
-				<Typography variant="h5">Schedule {currentIndex + 1}</Typography>
-				<Button variant="outlined" disabled={currentIndex === termSchedules.length - 1} onClick={handleNext}>Next Schedule</Button>
+				<Button variant="outlined" disabled={currentIndex === 0} onClick={handlePrev}>{previousSchedule}</Button>
+				<Typography variant="h5">{`${schedule} ${currentIndex + 1}`}</Typography>
+				<Button variant="outlined" disabled={currentIndex === termSchedules.length - 1} onClick={handleNext}>{nextSchedule}</Button>
 			</Container>
 			<SingleCalendar schedule={termSchedules[currentIndex]} courses={courses} />
 		</Container>
