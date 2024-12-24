@@ -4,6 +4,7 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { noOptions, PLAN_URL, searchForCourses } from '@/constants'
 import { Course } from '@/types'
+import { getCourseName } from '@/utils'
 
 interface SearchBarProps {
     courses: Course[]
@@ -65,7 +66,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 						<ListItemText
 							primary={
 								<>
-									<span className="font-bold">{course.subjectCode} {course.catalogNumber}</span>
+									<span className="font-bold">{getCourseName(course)}</span>
 									<span className='mx-1 border-b'>—</span>
 									<span className="text-gray-500">{course.title}</span>
 								</>

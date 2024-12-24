@@ -1,4 +1,4 @@
-import { Course } from './types'
+import { CookieCourse, Course } from './types'
 
 export const snakeToCamel = (obj: any): any => {
 	if (obj === null || typeof obj !== 'object') {
@@ -16,6 +16,6 @@ export const snakeToCamel = (obj: any): any => {
 	}, {} as any)
 }
 
-export const getCourseName = (course: Course): string => `${course.subjectCode} ${course.catalogNumber}`
+export const getCourseName = (course: Course | CookieCourse): string => `${course.subjectCode} ${course.catalogNumber}`
 
 export const capitalize = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1)

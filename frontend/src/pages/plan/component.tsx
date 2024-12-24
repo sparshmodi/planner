@@ -12,6 +12,7 @@ import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
 import { CookieCourse, Course, TermScheduleData } from '@/types'
+import { getCourseName } from '@/utils'
 import { useCoursesContext } from './context'
 
 interface PlanPageProps {
@@ -55,7 +56,7 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 	return (
 		<>
 			<Box className='flex justify-between'> 
-				<Typography variant='h3'>{course.subjectCode} {course.catalogNumber}</Typography>
+				<Typography variant='h3'>{getCourseName(course)}</Typography>
 				<Button 
 					variant='contained'
 					color={hasSelectedCourse ? 'error' : 'primary'}
@@ -166,7 +167,7 @@ const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, t
 											</IconButton>
 										}
 									>
-										<ListItemText primary={`${course.subjectCode} ${course.catalogNumber}`} />
+										<ListItemText primary={getCourseName(course)} />
 									</ListItem>
 								))}
 					</List>
