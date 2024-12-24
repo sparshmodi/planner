@@ -26,7 +26,7 @@ const Profile: React.FC = () => {
 		>
 			<Container
 				maxWidth="xs"
-				className="bg-white/70 rounded-lg shadow-lg p-8 h-3/4 flex flex-col items-center"
+				className="bg-white/70 rounded-lg shadow-lg p-8 h-3/5 flex flex-col items-center"
 			>
 				<Typography variant="h3" className="text-center">
 					Profile

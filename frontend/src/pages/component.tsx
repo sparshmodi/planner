@@ -1,12 +1,11 @@
-import { Box, Button, Container, Stack, Typography } from '@mui/material'
+import { Container, Stack, Typography } from '@mui/material'
 import { GetServerSideProps } from 'next'
-import Link from 'next/link'
 import React from 'react'
 import SearchBar from '@/components/searchbar'
 import { createApolloClient } from '@/graphql/apolloClient'
 import { GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { Course } from '@/types'
-import { uw, plan, tagline, planYourTerm, DJANGO_BACKEND_URL, BACKEND_COURSE_LIST_EP } from '../constants'
+import { uw, plan, tagline } from '../constants'
 
 interface LandingPageProps {
     coursesData: Course[] | null
@@ -40,11 +39,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ coursesData, error}) => {
 				>
 					{tagline}
 				</Typography>
-				{/* <Link href="/plan" className="px-1">
-                    <Button variant="text" color="primary" className="w-full">
-                        {planYourTerm}
-                    </Button>
-                </Link> */}
 				<SearchBar courses={coursesData!}/>
 			</Stack>
 		</Container>

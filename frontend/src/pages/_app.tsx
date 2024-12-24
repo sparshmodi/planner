@@ -47,7 +47,6 @@ export default function App({
 }
 
 const Auth: React.FC<PropsWithChildren> = ({ children }) => {
-	// status can only be "loading" or "authenticated"
 	const { status } = useSession({ required: false })
 
 	if (status === AuthenticationStatus.Loading) {

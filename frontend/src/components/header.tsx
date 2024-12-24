@@ -42,10 +42,6 @@ const Header: React.FC = () => {
 							text={signInText.toLocaleUpperCase()}
 							onClick={() => signIn('google')}
 						/>}
-					{/* <AuthenticationButton
-                        href="/material-ui/getting-started/templates/sign-up/"
-                        text={signUp}
-                    /> */}
 				</Toolbar>
 			</Container>
 		</AppBar>

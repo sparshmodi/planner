@@ -35,7 +35,7 @@ const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
 		}
 	}
 
-	const handleChange = (event: React.SyntheticEvent, newSelectedValue: Course | null) => {
+	const handleChange = (_: React.SyntheticEvent, newSelectedValue: Course | null) => {
 		setSelectedValue(newSelectedValue)
 	}
   

@@ -4,7 +4,7 @@ import { Box } from '@mui/material'
 import { DateTime } from 'luxon'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React from 'react'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
 import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules } from '@/constants'
@@ -123,18 +123,10 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 
 const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, termSchedules }) => {
 	const { addedCourses, setAddedCourses } = useCoursesContext()
-	const [ errorMessage, setErrorMessage] = useState('')
 	const router = useRouter()
 
 	const handleClick = async () => {
 		router.push('/plan/schedule')
-	}
-
-	const handleError = (error: string) => {
-		setErrorMessage(error)
-		setTimeout(() => {
-			setErrorMessage('')
-		}, 5000)
 	}
 
 	return (
@@ -191,14 +183,6 @@ const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, t
 					<Typography variant="h5" >Filters</Typography>
 					<Typography variant="body2" className='pl-4 pt-1 italic'>Coming soon...</Typography>
 				</Container>
-				{errorMessage &&
-                    <Typography 
-                    	variant="h6" 
-                    	className="text-red-500 text-center"
-                    >
-                    	{errorMessage}
-                    </Typography>
-				}
 				<Button 
 					disabled={addedCourses.length === 0}  
 					variant='contained'

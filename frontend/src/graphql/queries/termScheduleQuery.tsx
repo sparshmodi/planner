@@ -7,20 +7,20 @@ export const GET_TERM_SCHEDULES = gql`
       classes
     }
     courses(courseIds: $courseIds) {
-        courseId
-        subjectCode
-        catalogNumber
-        classes {
-            classSection
-            courseComponent
-            scheduleData {
-                scheduleStartDate
-                scheduleEndDate
-                classMeetingStartTime
-                classMeetingEndTime
-                classMeetingWeekPatternCode
-            }
+      courseId
+      subjectCode
+      catalogNumber
+      classes {
+        classSection
+        courseComponent
+        scheduleData {
+          scheduleStartDate
+          scheduleEndDate
+          classMeetingStartTime
+          classMeetingEndTime
+          classMeetingWeekPatternCode
         }
+      }
     }
   }
 `
