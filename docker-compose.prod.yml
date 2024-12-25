@@ -6,6 +6,9 @@ services:
     build:
       context: ./frontend
       target: prod-runner  
+      args:
+        NEXT_PUBLIC_FRONTEND_URL: ${NEXT_PUBLIC_FRONTEND_URL}
+        NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID}
     ports:
       - "80:3000"
     env_file:

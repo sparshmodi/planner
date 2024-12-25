@@ -24,6 +24,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG NEXT_PUBLIC_FRONTEND_URL
+ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
+ENV NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
+ENV NEXT_PUBLIC_GA_MEASUREMENT_ID=${NEXT_PUBLIC_GA_MEASUREMENT_ID}
+
 RUN npm run build
 
 # Production image, copy all the files and run next
