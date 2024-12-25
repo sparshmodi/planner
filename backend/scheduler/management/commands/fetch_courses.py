@@ -28,7 +28,7 @@ class Command(BaseCommand):
         uw_term_code = settings.UWATERLOO_TERM_CODE
         headers = {"x-api-key": settings.UWATERLOO_API_KEY}
 
-        courses_ep = f"{uw_api_url}/Courses/{uw_term_code}{'/CS' if settings.DJANGO_DEBUG else ''}"
+        courses_ep = f"{uw_api_url}/Courses/{uw_term_code}{'/CS' if settings.DEBUG else ''}"
         response = requests.get(courses_ep, headers=headers)
 
         if response.status_code != 200:
