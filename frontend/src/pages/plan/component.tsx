@@ -34,10 +34,10 @@ const CourseScheduleTime: React.FC<{scheduleData: UwaterlooClassSchedule[] | nul
 				const timeRange = (startTime && endTime) ? startTime + ' - ' + endTime : ''
 			
 				return (
-					<>
+					<div key={idx}>
 						{idx > 0 && <br />}
 						<span>{timeRange}</span>
-					</>
+					</div>
 				)
 			})}
 	  </>
@@ -68,11 +68,11 @@ const CourseScheduleDate: React.FC<{scheduleData: UwaterlooClassSchedule[] | nul
 				const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`
 		
 				return (
-					<>
+					<div key={idx}>
 						{idx > 0 && <br />}
 						{classMeetingWeekPatternCode && renderDays(classMeetingWeekPatternCode)}
 						{startDate && <span> ({dateRange})</span>}
-					</>
+					</div>
 				)
 			})}
 	  </>
