@@ -3,7 +3,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import { Button, Container, Typography } from '@mui/material'
-import dayjs from 'dayjs'
+import { DateTime } from 'luxon'
 import React, { useState } from 'react'
 import { nextSchedule, previousSchedule, schedule } from '@/constants'
 import { Course, Schedule, TermScheduleData } from '@/types'
@@ -43,18 +43,18 @@ const generateRecurringEvents = (termSchedule: Schedule, courses: Course[]) => {
 				const [startTimeHour, startTimeMinute] = classMeetingStartTime.split(':').map(Number)
 				const [endTimeHour, endTimeMinute] = classMeetingEndTime.split(':').map(Number)
 
-				let currentMoment = dayjs(scheduleStartDate)
-				const endMoment = dayjs(scheduleEndDate)
+				let currentMoment = DateTime.fromFormat(scheduleStartDate, 'yyyy-MM-dd')
+				const endMoment = DateTime.fromFormat(scheduleEndDate, 'yyyy-MM-dd')
 
-				while ((currentMoment.isBefore(endMoment) || currentMoment.isSame(endMoment)) && classMeetingWeekPatternCode !== null) {
-					if (classMeetingWeekPatternCode[currentMoment.day() === 0 ? 6 : currentMoment.day() - 1] === 'Y') {
+				while ((currentMoment < endMoment || currentMoment.equals(endMoment)) && classMeetingWeekPatternCode !== null) {
+					if (classMeetingWeekPatternCode[currentMoment.weekday - 1] === 'Y') {
 						recurringEvents.push({
 							title: classTitle,
-							start: currentMoment.hour(startTimeHour).minute(startTimeMinute).toDate(),
-							end: currentMoment.hour(endTimeHour).minute(endTimeMinute).toDate(),
+							start: currentMoment.set({hour: startTimeHour, minute: startTimeMinute}).toJSDate(),
+							end: currentMoment.set({hour: endTimeHour, minute: endTimeMinute}).toJSDate(),
 						})
 					}
-					currentMoment = currentMoment.add(1, 'day')
+					currentMoment = currentMoment.plus({days: 1})
 				}
 			})
 		}
