@@ -1,19 +1,41 @@
 import 'tailwindcss/tailwind.css'
-import { ApolloProvider } from '@apollo/client'
+import { ApolloClient, ApolloProvider } from '@apollo/client'
 import { Container, CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material'
 import { GoogleAnalytics } from '@next/third-parties/google' 
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { SessionProvider, useSession } from 'next-auth/react'
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react'
 import BaseLayout from '@/components/baseLayout'
 import LoadingState from '@/components/loading'
 import { AuthenticationStatus, uwPlan } from '@/constants'
-import client from '@/graphql/apolloClient'
+import { createClientSideApolloClient } from '@/graphql/apolloClient'
 import CoursesProvider from './plan/context'
 import getDarkTheme from './theme'
 
 const darkTheme = createTheme(getDarkTheme())
+
+const ApolloProviderWrapper: React.FC<{children: ReactNode}> = ({ children }) => {
+	const [client, setClient] = useState<ApolloClient<any> | null>(null)
+
+	useEffect(() => {
+		const init = async () => {
+			const client = await createClientSideApolloClient()
+			setClient(client)
+		}
+		init()
+	}, [])
+
+	if (!client) {
+		return <div>{children}</div>
+	}
+
+	return (
+		<ApolloProvider client={client}>
+			{children}
+		</ApolloProvider>
+	)
+}
 
 export default function App({
 	Component,
@@ -29,7 +51,7 @@ export default function App({
 			<SessionProvider session={session}>
 				<ThemeProvider theme={darkTheme}>
 					<CssBaseline />
-					<ApolloProvider client={client}>
+					<ApolloProviderWrapper >
 						<CoursesProvider>
 							<Auth>
 								<BaseLayout>
@@ -39,7 +61,7 @@ export default function App({
 								</BaseLayout>
 							</Auth>
 						</CoursesProvider>
-					</ApolloProvider>
+					</ApolloProviderWrapper>
 				</ThemeProvider>
 			</SessionProvider>
 		</>

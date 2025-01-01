@@ -1,24 +1,30 @@
 import SearchIcon from '@mui/icons-material/Search'
 import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { noOptions, PLAN_URL, searchForCourses } from '@/constants'
 import { Course } from '@/types'
 import { getCourseName } from '@/utils'
-
-interface SearchBarProps {
-    courses: Course[]
-}
+import { GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
+import { useQuery } from '@apollo/client'
 
 const getCourseOptionLabel = (course: Course) => {
 	return `${course.subjectCode} ${course.catalogNumber} ${course.title}`
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({courses}) => {
+const SearchBar: React.FC = () => {
 	const [selectedValue, setSelectedValue] = useState<Course | null>(null)
 	const [inputValue, setInputValue] = useState<string>('')
 	const [filteredOptions, setFilteredOptions] = useState<Course[]>([])
 	const [open, setOpen] = useState(false)
+
+	const { data: fetchedCoursesData } = useQuery(GET_UNDERGRADUATE_COURSES, {
+		fetchPolicy: 'cache-first',
+	})
+
+	const courses: Course[] = useMemo(() => {
+		return fetchedCoursesData?.courses || []
+	}, [fetchedCoursesData])
 
 	useEffect(() => {
 		setOpen(inputValue !== null && filteredOptions.length > 0)

@@ -8,15 +8,14 @@ import React from 'react'
 import ScrollableHorizontalView from '@/components/calendar'
 import SearchBar from '@/components/searchbar'
 import { daysOfWeek, addCourseToPlan, removeCourseFromPlan, findTermSchedules, filters, comingSoon, PLAN_URL } from '@/constants'
-import { createApolloClient } from '@/graphql/apolloClient'
-import { GET_COURSE, GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
+import { createServerSideApolloClient } from '@/graphql/apolloClient'
+import { GET_COURSE } from '@/graphql/queries/courseQueries'
 import { GET_TERM_SCHEDULES } from '@/graphql/queries/termScheduleQuery'
 import { CookieCourse, Course, TermScheduleData, UwaterlooClassSchedule } from '@/types'
 import { getCourseName } from '@/utils'
 import { useCoursesContext } from './context'
 
 interface PlanPageProps {
-	availableCourses: Course[]
 	selectedCourse?: Course
 	termSchedules?: TermScheduleData
 }
@@ -149,7 +148,7 @@ const CourseContainer: React.FC<{course: Course}> = ({course}) => {
 	)
 }
 
-const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, termSchedules }) => {
+const PlanPage: React.FC<PlanPageProps> = ({ selectedCourse, termSchedules }) => {
 	const { addedCourses, setAddedCourses } = useCoursesContext()
 	const router = useRouter()
 
@@ -165,7 +164,7 @@ const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, t
 				className='bg-white/50 rounded-lg p-8 my-8 ml-8 mr-4 shadow-md flex flex-col'
 				sx={{height: '80%', width: '25%'}}
 			>
-				<SearchBar courses={availableCourses}/>
+				<SearchBar />
 				<Container className='mt-8 pl-0'>
 					<Typography variant="h5" >Added Courses</Typography>
 					<List>
@@ -234,11 +233,7 @@ const PlanPage: React.FC<PlanPageProps> = ({ availableCourses, selectedCourse, t
 
 export const getServerSideProps: GetServerSideProps<PlanPageProps> = async (context) => {
 	const { slug } = context.query as { slug: string }
-	const client = createApolloClient()
-
-	const availableCoursesPromise = client.query({
-		query: GET_UNDERGRADUATE_COURSES
-	})
+	const client = createServerSideApolloClient()
 
 	try {
 		if (slug === 'schedule') {
@@ -252,25 +247,18 @@ export const getServerSideProps: GetServerSideProps<PlanPageProps> = async (cont
 				return { notFound: true }
 			}
 
-			const [ termSchedulesResponse, availableCoursesResponse ] = await Promise.all([
-				client.query({
-					query: GET_TERM_SCHEDULES,
-					variables: {
-						courseIds: JSON.parse(decodeURIComponent(storedAddedCourses)).map((course: CookieCourse) => course.courseId)
-					}
-				}),
-				availableCoursesPromise
-			])
+			const { data } = await client.query({
+				query: GET_TERM_SCHEDULES,
+				variables: {
+					courseIds: JSON.parse(decodeURIComponent(storedAddedCourses)).map((course: CookieCourse) => course.courseId)
+				}
+			})
 
-			if (!termSchedulesResponse.data.termSchedules || !termSchedulesResponse.data.courses) {
+			if (!data.termSchedules || !data.courses) {
 				return { notFound: true }
 			}
 
-			const sortedResults: Course[] = [...availableCoursesResponse.data.courses].sort((a, b) =>
-				a.subjectCode.localeCompare(b.subjectCode) ||
-				a.catalogNumber.localeCompare(b.catalogNumber)
-			)
-			return { props: { availableCourses: sortedResults, termSchedules: termSchedulesResponse.data } }
+			return { props: { termSchedules: data } }
 		}
 		const course = slug.match(/(.*?)(\d.*)/)?.slice(1) 
 
@@ -278,27 +266,19 @@ export const getServerSideProps: GetServerSideProps<PlanPageProps> = async (cont
 			return { notFound: true }
 		}
 
-		const [ courseResponse, availableCoursesResponse ] = await Promise.all([
-			client.query({
-				query: GET_COURSE,
-				variables: { 
-					subjectCode: course[0],
-					catalogNumber: course[1]
-				}
-			}),
-			availableCoursesPromise
-		])
+		const { data } = await client.query({
+			query: GET_COURSE,
+			variables: { 
+				subjectCode: course[0],
+				catalogNumber: course[1]
+			}
+		})
 
-		if (!courseResponse.data.course) {
+		if (!data.course) {
 			return { notFound: true }
 		}
 
-		const sortedResults: Course[] = [...availableCoursesResponse.data.courses].sort((a, b) =>
-			a.subjectCode.localeCompare(b.subjectCode) ||
-            a.catalogNumber.localeCompare(b.catalogNumber)
-		)
-
-		return { props: { selectedCourse: courseResponse.data.course, availableCourses: sortedResults}}
+		return { props: { selectedCourse: data.course}}
 	} catch (e) {
 		return { notFound: true }
 	}

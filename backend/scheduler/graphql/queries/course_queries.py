@@ -66,4 +66,6 @@ class CourseQueries(graphene.ObjectType):
         if catalog_number:
             queryset = queryset.filter(catalog_number=catalog_number)
 
+        queryset = queryset.order_by("subject_code", "catalog_number")
+
         return queryset
