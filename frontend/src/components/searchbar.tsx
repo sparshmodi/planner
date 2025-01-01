@@ -1,12 +1,12 @@
+import { useQuery } from '@apollo/client'
 import SearchIcon from '@mui/icons-material/Search'
 import { Autocomplete, FormControl, InputAdornment, InputLabel, ListItemText, TextField } from '@mui/material'
 import Link from 'next/link'
 import React, { useEffect, useMemo, useState } from 'react'
 import { noOptions, PLAN_URL, searchForCourses } from '@/constants'
+import { GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
 import { Course } from '@/types'
 import { getCourseName } from '@/utils'
-import { GET_UNDERGRADUATE_COURSES } from '@/graphql/queries/courseQueries'
-import { useQuery } from '@apollo/client'
 
 const getCourseOptionLabel = (course: Course) => {
 	return `${course.subjectCode} ${course.catalogNumber} ${course.title}`

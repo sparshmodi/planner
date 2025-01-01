@@ -12,7 +12,7 @@ export const createClientSideApolloClient = async () => {
 
 	return new ApolloClient({
 		link: new HttpLink({
-			uri: 'http://localhost:8000' + GRAPHQL_EP,
+			uri: GRAPHQL_EP,
 		}),
 		cache,
 	}) 
