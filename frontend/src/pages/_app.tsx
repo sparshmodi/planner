@@ -27,7 +27,7 @@ const ApolloProviderWrapper: React.FC<{children: ReactNode}> = ({ children }) =>
 	}, [])
 
 	if (!client) {
-		return <div>{children}</div>
+		return <>{children}</>
 	}
 
 	return (
@@ -51,8 +51,8 @@ export default function App({
 			<SessionProvider session={session}>
 				<ThemeProvider theme={darkTheme}>
 					<CssBaseline />
-					<ApolloProviderWrapper >
-						<CoursesProvider>
+					<CoursesProvider>
+						<ApolloProviderWrapper >
 							<Auth>
 								<BaseLayout>
 									<Box sx={{ bgcolor: 'background.default' }}>
@@ -60,8 +60,8 @@ export default function App({
 									</Box>
 								</BaseLayout>
 							</Auth>
-						</CoursesProvider>
-					</ApolloProviderWrapper>
+						</ApolloProviderWrapper>
+					</CoursesProvider>
 				</ThemeProvider>
 			</SessionProvider>
 		</>
