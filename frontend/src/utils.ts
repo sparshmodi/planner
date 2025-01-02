@@ -18,4 +18,4 @@ export const snakeToCamel = (obj: any): any => {
 
 export const getCourseName = (course: Course | CookieCourse): string => `${course.subjectCode} ${course.catalogNumber}`
 
-export const capitalize = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1)
+export const capitalizeFirstLetter = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()

@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { ReactNode } from 'react'
 import { HOME_URL, NOT_FOUND_URL, notFoundTitle, PLAN_URL, profile, PROFILE_URL, uwPlan } from '@/constants'
-import { capitalize } from '@/utils'
+import { capitalizeFirstLetter } from '@/utils'
 import Footer from './footer'
 import Header from './header'
 
@@ -11,7 +11,9 @@ const getTitle = (pathname: string, slug?: string | string[]) => {
 	if (pathname === HOME_URL) {
 		return uwPlan
 	} else if (pathname.startsWith(PLAN_URL)) {
-		return slug && typeof slug === 'string' ? `${capitalize(slug)} - ${uwPlan}` : uwPlan
+		return slug && typeof slug === 'string' 
+			? `${/\d$/.test(slug) ? slug.toUpperCase() : capitalizeFirstLetter(slug)} - ${uwPlan}`
+			: uwPlan
 	} else if (pathname === PROFILE_URL) {
 		return `${profile} - ${uwPlan}`
 	}
