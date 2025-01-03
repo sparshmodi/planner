@@ -16,7 +16,7 @@ interface AuthenticationButtonProps {
 
 export const MenuItemButton: React.FC<MenuItemButtonProps> = ({ href, text }) => {
 	return (
-		<Link href={href} className="px-1" passHref>
+		<Link href={href} className="px-1" prefetch={false} passHref>
 			<Button
 				variant='outlined'
 				component='a'
