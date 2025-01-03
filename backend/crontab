@@ -1,2 +1,0 @@
-# Run Django management commands every week (Sunday at midnight)
-0 0 * * 0 cd /app && python3 manage.py fetch_courses && python manage.py compute_class_schedules >> /var/log/cron.log 2>&1
