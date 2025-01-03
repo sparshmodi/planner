@@ -19,7 +19,7 @@ class CourseQueries(graphene.ObjectType):
     )
 
     def resolve_course(root, info, subject_code, catalog_number):
-        subject_code_pattern = r"^[a-zA-Z]{2,4}$"  # 2-4 letters
+        subject_code_pattern = r"^[a-zA-Z]{2,6}$"  # 2-6 letters
         catalog_number_pattern = r"^\d{2,}[a-zA-Z0-9]{0,2}$"  # At least 2 digits, at most 2 alphanumerics at end
 
         if not (
