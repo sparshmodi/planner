@@ -68,7 +68,10 @@ const SearchBar: React.FC = () => {
 						setOpen(false)
 					}}
 				>
-					<Link href={`${PLAN_URL}/${course.subjectCode}${course.catalogNumber}`} >
+					<Link 
+						href={`${PLAN_URL}/${course.subjectCode}${course.catalogNumber}`} 
+						prefetch={false}
+					>
 						<ListItemText
 							primary={
 								<>
