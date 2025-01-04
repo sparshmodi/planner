@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: update-cronjob
 spec:
-  schedule: "0 3 * * 6" # Runs at 3 AM every Saturday
+  schedule: "0 8 * * 6" # Runs at 8 AM (UTC) [3 AM EST] every Saturday
   jobTemplate:
     spec:
       template:
