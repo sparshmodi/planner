@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: sparshmodi/planner:backend
+        imagePullPolicy: Always
+        command: ["gunicorn", "planner.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--threads", "2", "--timeout", "120"]
+        envFrom:
+        - configMapRef:
+            name: backend-env
+        - configMapRef:
+            name: db-env
+        ports:
+        - containerPort: 8000

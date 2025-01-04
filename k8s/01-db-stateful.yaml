@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: planner-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: planner-db
+  template:
+    metadata:
+      labels:
+        app: planner-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:17
+        envFrom:
+        - configMapRef:
+            name: db-env
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: pgdata
+          subPath: data
+  volumeClaimTemplates:
+  - metadata:
+      name: pgdata
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi

@@ -126,7 +126,7 @@ next-env.d.ts
 **/*.sage.py
 
 # Environments
-**/.env
+**/*.env
 **/.venv
 **/env/
 **/venv/

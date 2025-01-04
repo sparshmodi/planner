@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-cronjob
+spec:
+  schedule: "0 3 * * 6" # Runs at 3 AM every Saturday
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: update-cronjob
+            image: sparshmodi/planner:backend
+            args:
+            - /bin/sh
+            - -c
+            - |
+              python3 manage.py fetch_courses &&
+              python3 manage.py compute_class_schedules
+            envFrom:
+            - configMapRef:
+                name: backend-env
+            - configMapRef:
+                name: db-env
+          restartPolicy: Never
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 10

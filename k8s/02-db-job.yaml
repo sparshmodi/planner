@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: migrate
+        image: sparshmodi/planner:backend
+        args:
+        - /bin/sh
+        - -c
+        - |
+          python3 manage.py migrate &&
+          python3 manage.py fetch_courses &&
+          python3 manage.py compute_class_schedules
+        envFrom:
+        - configMapRef:
+            name: backend-env
+        - configMapRef:
+            name: db-env
+      restartPolicy: Never
